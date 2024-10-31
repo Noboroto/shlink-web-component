@@ -23,17 +23,20 @@ const SettingsContext = createContext(defaultSettings);
 
 export const { Provider: SettingsProvider } = SettingsContext;
 
-export const useSettings = (): Settings => useContext(SettingsContext) ?? defaultSettings;
+export const useSettings = (): Settings =>
+  useContext(SettingsContext) ?? defaultSettings;
 
-export function useSetting<Setting extends keyof Settings>(settingName: Setting): Settings[Setting];
-export function useSetting<Setting extends keyof Settings, Default extends NonNullable<Settings[Setting]>>(
-  settingName: Setting,
-  fallbackValue: Default,
-): NonNullable<Settings[Setting]>;
-export function useSetting<Setting extends keyof Settings, Default extends Settings[Setting]>(
-  settingName: Setting,
-  fallbackValue?: Default,
-) {
+export function useSetting<Setting extends keyof Settings>(
+  settingName: Setting
+): Settings[Setting];
+export function useSetting<
+  Setting extends keyof Settings,
+  Default extends NonNullable<Settings[Setting]>,
+>(settingName: Setting, fallbackValue: Default): NonNullable<Settings[Setting]>;
+export function useSetting<
+  Setting extends keyof Settings,
+  Default extends Settings[Setting],
+>(settingName: Setting, fallbackValue?: Default) {
   const settings = useSettings();
   return settings[settingName] ?? fallbackValue;
 }

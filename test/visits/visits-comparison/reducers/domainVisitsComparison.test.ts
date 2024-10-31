@@ -1,6 +1,10 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { addDays, subDays } from 'date-fns';
-import type { ShlinkApiClient, ShlinkShortUrl, ShlinkVisit } from '../../../../src/api-contract';
+import type {
+  ShlinkApiClient,
+  ShlinkShortUrl,
+  ShlinkVisit,
+} from '../../../../src/api-contract';
 import { formatIsoDate } from '../../../../src/utils/dates/helpers/date';
 import { rangeOf } from '../../../../src/utils/helpers';
 import { createNewVisits } from '../../../../src/visits/reducers/visitCreation';
@@ -14,22 +18,31 @@ describe('domainVisitsComparisonReducer', () => {
   const now = new Date();
   const visitsMocks = rangeOf(2, () => fromPartial<ShlinkVisit>({}));
   const getDomainVisitsCall = vi.fn();
-  const buildShlinkApiClientMock = () => fromPartial<ShlinkApiClient>({ getDomainVisits: getDomainVisitsCall });
-  const getDomainVisitsForComparison = getDomainVisitsForComparisonCreator(buildShlinkApiClientMock);
-  const { reducer, cancelGetVisits: cancelGetDomainVisitsForComparison } = domainVisitsComparisonReducerCreator(
-    getDomainVisitsForComparison,
+  const buildShlinkApiClientMock = () =>
+    fromPartial<ShlinkApiClient>({ getDomainVisits: getDomainVisitsCall });
+  const getDomainVisitsForComparison = getDomainVisitsForComparisonCreator(
+    buildShlinkApiClientMock
   );
+  const { reducer, cancelGetVisits: cancelGetDomainVisitsForComparison } =
+    domainVisitsComparisonReducerCreator(getDomainVisitsForComparison);
 
   describe('reducer', () => {
     it('returns loading when pending', () => {
-      const action = getDomainVisitsForComparison.pending('', fromPartial({ domains: [] }), undefined);
+      const action = getDomainVisitsForComparison.pending(
+        '',
+        fromPartial({ domains: [] }),
+        undefined
+      );
       const { loading } = reducer(fromPartial({ loading: false }), action);
 
       expect(loading).toEqual(true);
     });
 
     it('returns cancelLoad when load is cancelled', () => {
-      const { cancelLoad } = reducer(fromPartial({ cancelLoad: false }), cancelGetDomainVisitsForComparison());
+      const { cancelLoad } = reducer(
+        fromPartial({ cancelLoad: false }),
+        cancelGetDomainVisitsForComparison()
+      );
       expect(cancelLoad).toEqual(true);
     });
 
@@ -41,8 +54,8 @@ describe('domainVisitsComparisonReducer', () => {
           '',
           fromPartial({ domains: [] }),
           undefined,
-          undefined,
-        ),
+          undefined
+        )
       );
 
       expect(loading).toEqual(false);
@@ -60,8 +73,8 @@ describe('domainVisitsComparisonReducer', () => {
           { visitsGroups: actionVisits },
           '',
           fromPartial({ domains: ['foo.com', 'bar.com'] }),
-          undefined,
-        ),
+          undefined
+        )
       );
 
       expect(loading).toEqual(false);
@@ -70,7 +83,10 @@ describe('domainVisitsComparisonReducer', () => {
     });
 
     it('returns new progress when progress changes', () => {
-      const { progress } = reducer(undefined, getDomainVisitsForComparison.progressChanged(85));
+      const { progress } = reducer(
+        undefined,
+        getDomainVisitsForComparison.progressChanged(85)
+      );
       expect(progress).toEqual(85);
     });
 
@@ -82,9 +98,19 @@ describe('domainVisitsComparisonReducer', () => {
       // No query. No domain match. No new visits prepended
       [{}, 'baz.com', visitsMocks.length, visitsMocks.length],
       // Query filter in the past. Domain matches foo. No new visits prepended
-      [{ endDate: subDays(now, 1) }, 'foo.com', visitsMocks.length, visitsMocks.length],
+      [
+        { endDate: subDays(now, 1) },
+        'foo.com',
+        visitsMocks.length,
+        visitsMocks.length,
+      ],
       // Query filter in the future. Domain matches foo. No new visits prepended
-      [{ startDate: addDays(now, 1) }, 'foo.com', visitsMocks.length, visitsMocks.length],
+      [
+        { startDate: addDays(now, 1) },
+        'foo.com',
+        visitsMocks.length,
+        visitsMocks.length,
+      ],
       // Query filter with start and end in the past. Domain matches foo. No new visits prepended
       [
         { startDate: subDays(now, 5), endDate: subDays(now, 2) },
@@ -113,20 +139,30 @@ describe('domainVisitsComparisonReducer', () => {
         visitsMocks.length,
         visitsMocks.length,
       ],
-    ])('prepends new visits when visits are created', (dateRange, shortUrlDomain, expectedFooVisits, expectedBarVisits) => {
-      const actionVisits: Record<string, ShlinkVisit[]> = {
-        'foo.com': visitsMocks,
-        'bar.com': visitsMocks,
-      };
-      const shortUrl = fromPartial<ShlinkShortUrl>({ domain: shortUrlDomain });
-      const { visitsGroups } = reducer(
-        fromPartial({ visitsGroups: actionVisits, params: { dateRange } }),
-        createNewVisits([fromPartial({ shortUrl, visit: { date: formatIsoDate(now) ?? undefined } })]),
-      );
+    ])(
+      'prepends new visits when visits are created',
+      (dateRange, shortUrlDomain, expectedFooVisits, expectedBarVisits) => {
+        const actionVisits: Record<string, ShlinkVisit[]> = {
+          'foo.com': visitsMocks,
+          'bar.com': visitsMocks,
+        };
+        const shortUrl = fromPartial<ShlinkShortUrl>({
+          domain: shortUrlDomain,
+        });
+        const { visitsGroups } = reducer(
+          fromPartial({ visitsGroups: actionVisits, params: { dateRange } }),
+          createNewVisits([
+            fromPartial({
+              shortUrl,
+              visit: { date: formatIsoDate(now) ?? undefined },
+            }),
+          ])
+        );
 
-      expect(visitsGroups['foo.com']).toHaveLength(expectedFooVisits);
-      expect(visitsGroups['bar.com']).toHaveLength(expectedBarVisits);
-    });
+        expect(visitsGroups['foo.com']).toHaveLength(expectedFooVisits);
+        expect(visitsGroups['bar.com']).toHaveLength(expectedBarVisits);
+      }
+    );
   });
 
   describe('getDomainVisitsForComparison', () => {
@@ -153,16 +189,34 @@ describe('domainVisitsComparisonReducer', () => {
         },
       });
 
-      await getDomainVisitsForComparison(getVisitsComparisonParam)(dispatch, getState, {});
+      await getDomainVisitsForComparison(getVisitsComparisonParam)(
+        dispatch,
+        getState,
+        {}
+      );
 
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { ...getVisitsComparisonParam, visitsGroups },
-      }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: { ...getVisitsComparisonParam, visitsGroups },
+        })
+      );
       expect(getDomainVisitsCall).toHaveBeenCalledTimes(domains.length);
-      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(1, 'foo', expect.anything());
-      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(2, 'bar', expect.anything());
-      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(3, 'baz', expect.anything());
+      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(
+        1,
+        'foo',
+        expect.anything()
+      );
+      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(
+        2,
+        'bar',
+        expect.anything()
+      );
+      expect(getDomainVisitsCall).toHaveBeenNthCalledWith(
+        3,
+        'baz',
+        expect.anything()
+      );
     });
   });
 });

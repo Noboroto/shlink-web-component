@@ -9,8 +9,10 @@ describe('mercureInfoReducer', () => {
     token: 'abc.123.def',
   };
   const getMercureInfo = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({ mercureInfo: getMercureInfo });
-  const { loadMercureInfo, reducer } = mercureInfoReducerCreator(buildShlinkApiClient);
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({ mercureInfo: getMercureInfo });
+  const { loadMercureInfo, reducer } =
+    mercureInfoReducerCreator(buildShlinkApiClient);
 
   describe('reducer', () => {
     it('returns loading on GET_MERCURE_INFO_START', () => {
@@ -21,24 +23,33 @@ describe('mercureInfoReducer', () => {
     });
 
     it('returns error on GET_MERCURE_INFO_ERROR', () => {
-      expect(reducer(undefined, loadMercureInfo.rejected(null, '', {}))).toEqual({
+      expect(
+        reducer(undefined, loadMercureInfo.rejected(null, '', {}))
+      ).toEqual({
         loading: false,
         error: true,
       });
     });
 
     it('returns mercure info on GET_MERCURE_INFO', () => {
-      expect(reducer(undefined, loadMercureInfo.fulfilled(mercureInfo, '', {}))).toEqual(
-        expect.objectContaining({ ...mercureInfo, loading: false, error: false }),
+      expect(
+        reducer(undefined, loadMercureInfo.fulfilled(mercureInfo, '', {}))
+      ).toEqual(
+        expect.objectContaining({
+          ...mercureInfo,
+          loading: false,
+          error: false,
+        })
       );
     });
   });
 
   describe('loadMercureInfo', () => {
     const dispatch = vi.fn();
-    const createSettings = (enabled: boolean): Settings => fromPartial({
-      realTimeUpdates: { enabled },
-    });
+    const createSettings = (enabled: boolean): Settings =>
+      fromPartial({
+        realTimeUpdates: { enabled },
+      });
 
     it('dispatches error when real time updates are disabled', async () => {
       getMercureInfo.mockResolvedValue(mercureInfo);
@@ -48,9 +59,11 @@ describe('mercureInfoReducer', () => {
 
       expect(getMercureInfo).not.toHaveBeenCalled();
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
-        error: new Error('Real time updates not enabled'),
-      }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          error: new Error('Real time updates not enabled'),
+        })
+      );
     });
 
     it('calls API on success', async () => {
@@ -61,7 +74,9 @@ describe('mercureInfoReducer', () => {
 
       expect(getMercureInfo).toHaveBeenCalledOnce();
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ payload: mercureInfo }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({ payload: mercureInfo })
+      );
     });
   });
 });

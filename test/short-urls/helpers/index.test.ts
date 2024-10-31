@@ -29,7 +29,9 @@ describe('helpers', () => {
         },
       ],
     ])('returns expected data', (shortUrl, settings, expectedInitialState) => {
-      expect(shortUrlDataFromShortUrl(shortUrl, settings)).toEqual(expectedInitialState);
+      expect(shortUrlDataFromShortUrl(shortUrl, settings)).toEqual(
+        expectedInitialState
+      );
     });
   });
 
@@ -57,7 +59,10 @@ describe('helpers', () => {
     it.each([
       [{ domain: null, shortCode: 'foo' }, `${DEFAULT_DOMAIN}__foo`],
       [{ domain: 's.test', shortCode: 'bar' }, 's.test__bar'],
-      [{ domain: 's.test', shortCode: 'multi/segment/slug' }, 's.test__multi__segment__slug'],
+      [
+        { domain: 's.test', shortCode: 'multi/segment/slug' },
+        's.test__multi__segment__slug',
+      ],
     ])('generates expected pattern', (shortUrl, expectedResult) => {
       expect(shortUrlToQuery(shortUrl)).toEqual(expectedResult);
     });
@@ -67,14 +72,17 @@ describe('helpers', () => {
     it.each([
       [`${DEFAULT_DOMAIN}__foo`, { domain: null, shortCode: 'foo' }],
       ['s.test__bar', { domain: 's.test', shortCode: 'bar' }],
-      ['s.test__multi__segment__slug', { domain: 's.test', shortCode: 'multi/segment/slug' }],
+      [
+        's.test__multi__segment__slug',
+        { domain: 's.test', shortCode: 'multi/segment/slug' },
+      ],
     ])('generates expected pattern', (query, expectedShortUrl) => {
       expect(queryToShortUrl(query)).toEqual(expectedShortUrl);
     });
 
     it('throws error when provided value is un-parseable', () => {
       expect(() => queryToShortUrl('foo')).toThrowError(
-        'It was not possible to parse domain and short code from "foo"',
+        'It was not possible to parse domain and short code from "foo"'
       );
     });
   });

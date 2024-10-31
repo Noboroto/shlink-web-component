@@ -7,7 +7,9 @@ import type { LoadVisitsForComparison, VisitsComparisonInfo } from './types';
 
 const REDUCER_PREFIX = 'shlink/tagVisitsComparison';
 
-export type LoadTagVisitsForComparison = LoadVisitsForComparison & { tags: string[]; };
+export type LoadTagVisitsForComparison = LoadVisitsForComparison & {
+  tags: string[];
+};
 
 const initialState: VisitsComparisonInfo = {
   visitsGroups: {},
@@ -17,29 +19,31 @@ const initialState: VisitsComparisonInfo = {
   progress: null,
 };
 
-export const getTagVisitsForComparison = (apiClientFactory: () => ShlinkApiClient) => createVisitsComparisonAsyncThunk({
-  typePrefix: `${REDUCER_PREFIX}/getTagVisitsForComparison`,
-  createLoaders: ({ tags }: LoadTagVisitsForComparison) => {
-    const apiClient = apiClientFactory();
-    const loaderEntries = tags.map((tag) => [
-      tag,
-      (query: ShlinkVisitsParams) => apiClient.getTagVisits(tag, query),
-    ]);
+export const getTagVisitsForComparison = (
+  apiClientFactory: () => ShlinkApiClient
+) =>
+  createVisitsComparisonAsyncThunk({
+    typePrefix: `${REDUCER_PREFIX}/getTagVisitsForComparison`,
+    createLoaders: ({ tags }: LoadTagVisitsForComparison) => {
+      const apiClient = apiClientFactory();
+      const loaderEntries = tags.map((tag) => [
+        tag,
+        (query: ShlinkVisitsParams) => apiClient.getTagVisits(tag, query),
+      ]);
 
-    return Object.fromEntries(loaderEntries);
-  },
-  shouldCancel: (getState) => getState().tagVisitsComparison.cancelLoad,
-});
+      return Object.fromEntries(loaderEntries);
+    },
+    shouldCancel: (getState) => getState().tagVisitsComparison.cancelLoad,
+  });
 
-export const tagVisitsComparisonReducerCreator = (asyncThunkCreator: ReturnType<typeof getTagVisitsForComparison>) =>
+export const tagVisitsComparisonReducerCreator = (
+  asyncThunkCreator: ReturnType<typeof getTagVisitsForComparison>
+) =>
   createVisitsComparisonReducer({
     name: REDUCER_PREFIX,
     initialState,
     // @ts-expect-error TODO Fix type inference
     asyncThunkCreator,
-    filterCreatedVisitsForGroup: ({ groupKey: tag, params }, createdVisits) => filterCreatedVisitsByTag(
-      createdVisits,
-      tag,
-      params?.dateRange,
-    ),
+    filterCreatedVisitsForGroup: ({ groupKey: tag, params }, createdVisits) =>
+      filterCreatedVisitsByTag(createdVisits, tag, params?.dateRange),
   });

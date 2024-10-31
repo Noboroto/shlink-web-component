@@ -1,5 +1,8 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { ShlinkApiClient, ShlinkShortUrl } from '../../../src/api-contract';
+import type {
+  ShlinkApiClient,
+  ShlinkShortUrl,
+} from '../../../src/api-contract';
 import type { RootState } from '../../../src/container/store';
 import type { ShortUrlIdentifier } from '../../../src/short-urls/data';
 import { shortUrlsDetailsReducerCreator } from '../../../src/short-urls/reducers/shortUrlsDetails';
@@ -7,19 +10,24 @@ import type { ShortUrlsList } from '../../../src/short-urls/reducers/shortUrlsLi
 
 describe('shortUrlsDetailsReducer', () => {
   const getShortUrlCall = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({ getShortUrl: getShortUrlCall });
-  const { reducer, getShortUrlsDetails } = shortUrlsDetailsReducerCreator(buildShlinkApiClient);
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({ getShortUrl: getShortUrlCall });
+  const { reducer, getShortUrlsDetails } =
+    shortUrlsDetailsReducerCreator(buildShlinkApiClient);
 
   describe('reducer', () => {
     it('returns loading on pending', () => {
-      const { loading } = reducer({ loading: false, error: false }, getShortUrlsDetails.pending('', [], undefined));
+      const { loading } = reducer(
+        { loading: false, error: false },
+        getShortUrlsDetails.pending('', [], undefined)
+      );
       expect(loading).toEqual(true);
     });
 
     it('stops loading and returns error on rejected', () => {
       const { loading, error } = reducer(
         { loading: true, error: false },
-        getShortUrlsDetails.rejected(null, '', [], undefined, undefined),
+        getShortUrlsDetails.rejected(null, '', [], undefined, undefined)
       );
 
       expect(loading).toEqual(false);
@@ -29,11 +37,19 @@ describe('shortUrlsDetailsReducer', () => {
     it('return short URLs on fulfilled', () => {
       const identifier = { shortCode: 'abc123' };
       const actionShortUrls = new Map<ShortUrlIdentifier, ShlinkShortUrl>([
-        [identifier, fromPartial<ShlinkShortUrl>({ longUrl: 'foo', shortCode: 'bar' })],
+        [
+          identifier,
+          fromPartial<ShlinkShortUrl>({ longUrl: 'foo', shortCode: 'bar' }),
+        ],
       ]);
       const state = reducer(
         { loading: true, error: false },
-        getShortUrlsDetails.fulfilled(actionShortUrls, '', [identifier], undefined),
+        getShortUrlsDetails.fulfilled(
+          actionShortUrls,
+          '',
+          [identifier],
+          undefined
+        )
       );
       const { loading, error, shortUrls } = state;
 
@@ -45,7 +61,8 @@ describe('shortUrlsDetailsReducer', () => {
 
   describe('getShortUrlsDetails', () => {
     const dispatchMock = vi.fn();
-    const buildGetState = (shortUrlsList?: ShortUrlsList) => () => fromPartial<RootState>({ shortUrlsList });
+    const buildGetState = (shortUrlsList?: ShortUrlsList) => () =>
+      fromPartial<RootState>({ shortUrlsList });
 
     it.each([
       [undefined],
@@ -62,37 +79,56 @@ describe('shortUrlsDetailsReducer', () => {
           },
         }),
       ],
-    ])('performs API call when short URL is not found in local state', async (shortUrlsList?: ShortUrlsList) => {
-      const identifier = { shortCode: 'abc123', domain: '' };
-      const resolvedShortUrl = fromPartial<ShlinkShortUrl>({ longUrl: 'foo', shortCode: 'abc123' });
-      getShortUrlCall.mockResolvedValue(resolvedShortUrl);
+    ])(
+      'performs API call when short URL is not found in local state',
+      async (shortUrlsList?: ShortUrlsList) => {
+        const identifier = { shortCode: 'abc123', domain: '' };
+        const resolvedShortUrl = fromPartial<ShlinkShortUrl>({
+          longUrl: 'foo',
+          shortCode: 'abc123',
+        });
+        getShortUrlCall.mockResolvedValue(resolvedShortUrl);
 
-      await getShortUrlsDetails([identifier])(dispatchMock, buildGetState(shortUrlsList), {});
+        await getShortUrlsDetails([identifier])(
+          dispatchMock,
+          buildGetState(shortUrlsList),
+          {}
+        );
 
-      expect(dispatchMock).toHaveBeenCalledTimes(2);
-      expect(dispatchMock).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: new Map([[identifier, resolvedShortUrl]]),
-      }));
-      expect(getShortUrlCall).toHaveBeenCalledOnce();
-    });
+        expect(dispatchMock).toHaveBeenCalledTimes(2);
+        expect(dispatchMock).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            payload: new Map([[identifier, resolvedShortUrl]]),
+          })
+        );
+        expect(getShortUrlCall).toHaveBeenCalledOnce();
+      }
+    );
 
     it('avoids API calls when short URL is found in local state', async () => {
-      const foundShortUrl = fromPartial<ShlinkShortUrl>({ longUrl: 'foo', shortCode: 'abc123' });
+      const foundShortUrl = fromPartial<ShlinkShortUrl>({
+        longUrl: 'foo',
+        shortCode: 'abc123',
+      });
 
       await getShortUrlsDetails([foundShortUrl])(
         dispatchMock,
-        buildGetState(fromPartial({
-          shortUrls: {
-            data: [foundShortUrl],
-          },
-        })),
-        {},
+        buildGetState(
+          fromPartial({
+            shortUrls: {
+              data: [foundShortUrl],
+            },
+          })
+        ),
+        {}
       );
 
       expect(dispatchMock).toHaveBeenCalledTimes(2);
-      expect(dispatchMock).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: new Map([[foundShortUrl, foundShortUrl]]),
-      }));
+      expect(dispatchMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: new Map([[foundShortUrl, foundShortUrl]]),
+        })
+      );
       expect(getShortUrlCall).not.toHaveBeenCalled();
     });
   });

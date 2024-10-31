@@ -3,7 +3,7 @@ services:
         container_name: shlink_web_component
         user: 1000:1000
         image: node:22.10-alpine
-        command: /bin/sh -c "cd /shlink-web-component && npm i && npm run dev"
+        command: /bin/sh -c "cd /shlink-web-component && yarn && yarn run dev"
         volumes:
             - ./:/shlink-web-component
         ports:

@@ -49,36 +49,38 @@ export type RootState = {
   shortUrlRedirectRulesSaving: SetShortUrlRedirectRules;
 };
 
-export const setUpStore = (container: IContainer) => configureStore({
-  devTools: !isProduction,
-  reducer: combineReducers({
-    mercureInfo: container.mercureInfoReducer,
-    shortUrlsList: container.shortUrlsListReducer,
-    shortUrlCreation: container.shortUrlCreationReducer,
-    shortUrlDeletion: container.shortUrlDeletionReducer,
-    shortUrlEdition: container.shortUrlEditionReducer,
-    shortUrlsDetails: container.shortUrlsDetailsReducer,
-    shortUrlVisits: container.shortUrlVisitsReducer,
-    shortUrlVisitsDeletion: container.shortUrlVisitsDeletionReducer,
-    shortUrlVisitsComparison: container.shortUrlVisitsComparisonReducer,
-    tagVisits: container.tagVisitsReducer,
-    tagVisitsComparison: container.tagVisitsComparisonReducer,
-    domainVisits: container.domainVisitsReducer,
-    domainVisitsComparison: container.domainVisitsComparisonReducer,
-    orphanVisits: container.orphanVisitsReducer,
-    orphanVisitsDeletion: container.orphanVisitsDeletionReducer,
-    nonOrphanVisits: container.nonOrphanVisitsReducer,
-    tagsList: container.tagsListReducer,
-    tagDelete: container.tagDeleteReducer,
-    tagEdit: container.tagEditReducer,
-    domainsList: container.domainsListReducer,
-    visitsOverview: container.visitsOverviewReducer,
-    shortUrlRedirectRules: container.shortUrlRedirectRulesReducer,
-    shortUrlRedirectRulesSaving: container.setShortUrlRedirectRulesReducer,
-  } satisfies RootState),
-  middleware: (defaultMiddlewaresIncludingReduxThunk) => defaultMiddlewaresIncludingReduxThunk({
-    // State is too big for these
-    immutableCheck: false,
-    serializableCheck: false,
-  }),
-});
+export const setUpStore = (container: IContainer) =>
+  configureStore({
+    devTools: !isProduction,
+    reducer: combineReducers({
+      mercureInfo: container.mercureInfoReducer,
+      shortUrlsList: container.shortUrlsListReducer,
+      shortUrlCreation: container.shortUrlCreationReducer,
+      shortUrlDeletion: container.shortUrlDeletionReducer,
+      shortUrlEdition: container.shortUrlEditionReducer,
+      shortUrlsDetails: container.shortUrlsDetailsReducer,
+      shortUrlVisits: container.shortUrlVisitsReducer,
+      shortUrlVisitsDeletion: container.shortUrlVisitsDeletionReducer,
+      shortUrlVisitsComparison: container.shortUrlVisitsComparisonReducer,
+      tagVisits: container.tagVisitsReducer,
+      tagVisitsComparison: container.tagVisitsComparisonReducer,
+      domainVisits: container.domainVisitsReducer,
+      domainVisitsComparison: container.domainVisitsComparisonReducer,
+      orphanVisits: container.orphanVisitsReducer,
+      orphanVisitsDeletion: container.orphanVisitsDeletionReducer,
+      nonOrphanVisits: container.nonOrphanVisitsReducer,
+      tagsList: container.tagsListReducer,
+      tagDelete: container.tagDeleteReducer,
+      tagEdit: container.tagEditReducer,
+      domainsList: container.domainsListReducer,
+      visitsOverview: container.visitsOverviewReducer,
+      shortUrlRedirectRules: container.shortUrlRedirectRulesReducer,
+      shortUrlRedirectRulesSaving: container.setShortUrlRedirectRulesReducer,
+    } satisfies RootState),
+    middleware: (defaultMiddlewaresIncludingReduxThunk) =>
+      defaultMiddlewaresIncludingReduxThunk({
+        // State is too big for these
+        immutableCheck: false,
+        serializableCheck: false,
+      }),
+  });

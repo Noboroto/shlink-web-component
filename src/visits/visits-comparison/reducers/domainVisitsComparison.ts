@@ -7,7 +7,9 @@ import type { LoadVisitsForComparison, VisitsComparisonInfo } from './types';
 
 const REDUCER_PREFIX = 'shlink/domainVisitsComparison';
 
-export type LoadDomainVisitsForComparison = LoadVisitsForComparison & { domains: string[]; };
+export type LoadDomainVisitsForComparison = LoadVisitsForComparison & {
+  domains: string[];
+};
 
 const initialState: VisitsComparisonInfo = {
   visitsGroups: {},
@@ -17,7 +19,9 @@ const initialState: VisitsComparisonInfo = {
   progress: null,
 };
 
-export const getDomainVisitsForComparison = (apiClientFactory: () => ShlinkApiClient) =>
+export const getDomainVisitsForComparison = (
+  apiClientFactory: () => ShlinkApiClient
+) =>
   createVisitsComparisonAsyncThunk({
     typePrefix: `${REDUCER_PREFIX}/getDomainVisitsForComparison`,
     createLoaders: ({ domains }: LoadDomainVisitsForComparison) => {
@@ -33,15 +37,15 @@ export const getDomainVisitsForComparison = (apiClientFactory: () => ShlinkApiCl
   });
 
 export const domainVisitsComparisonReducerCreator = (
-  asyncThunkCreator: ReturnType<typeof getDomainVisitsForComparison>,
-) => createVisitsComparisonReducer({
-  name: REDUCER_PREFIX,
-  initialState,
-  // @ts-expect-error TODO Fix type inference
-  asyncThunkCreator,
-  filterCreatedVisitsForGroup: ({ groupKey: domain, params }, createdVisits) => filterCreatedVisitsByDomain(
-    createdVisits,
-    domain,
-    params?.dateRange,
-  ),
-});
+  asyncThunkCreator: ReturnType<typeof getDomainVisitsForComparison>
+) =>
+  createVisitsComparisonReducer({
+    name: REDUCER_PREFIX,
+    initialState,
+    // @ts-expect-error TODO Fix type inference
+    asyncThunkCreator,
+    filterCreatedVisitsForGroup: (
+      { groupKey: domain, params },
+      createdVisits
+    ) => filterCreatedVisitsByDomain(createdVisits, domain, params?.dateRange),
+  });

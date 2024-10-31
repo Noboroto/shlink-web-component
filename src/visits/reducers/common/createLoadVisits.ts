@@ -1,18 +1,28 @@
 import { range, splitEvery } from '@shlinkio/data-manipulation';
 import type { ShlinkVisitsParams } from '@shlinkio/shlink-js-sdk/api-contract';
-import type { ShlinkPaginator, ShlinkVisit, ShlinkVisitsList } from '../../../api-contract';
+import type {
+  ShlinkPaginator,
+  ShlinkVisit,
+  ShlinkVisitsList,
+} from '../../../api-contract';
 
 const ITEMS_PER_PAGE = 5000;
 const PARALLEL_STARTING_PAGE = 2;
 
 export const DEFAULT_BATCH_SIZE = 4;
 
-const isLastPage = ({ currentPage, pagesCount }: ShlinkPaginator): boolean => currentPage >= pagesCount;
-const calcProgress = (total: number, current: number): number => (current * 100) / total;
+const isLastPage = ({ currentPage, pagesCount }: ShlinkPaginator): boolean =>
+  currentPage >= pagesCount;
+const calcProgress = (total: number, current: number): number =>
+  (current * 100) / total;
 
-export type VisitsLoader = (query: ShlinkVisitsParams) => Promise<ShlinkVisitsList>;
+export type VisitsLoader = (
+  query: ShlinkVisitsParams
+) => Promise<ShlinkVisitsList>;
 
-export type LastVisitLoader = (excludeBots?: boolean) => Promise<ShlinkVisit | undefined>;
+export type LastVisitLoader = (
+  excludeBots?: boolean
+) => Promise<ShlinkVisit | undefined>;
 
 export type Loaders = {
   visitsLoader: VisitsLoader;
@@ -33,7 +43,10 @@ type CreateLoadVisitsOptions = {
   batchSize: number;
 };
 
-export type NonPageVisitsParams = Omit<ShlinkVisitsParams, 'page' | 'itemsPerPage'>;
+export type NonPageVisitsParams = Omit<
+  ShlinkVisitsParams,
+  'page' | 'itemsPerPage'
+>;
 
 /**
  * Creates a callback used to load visits in batches, using provided visits loader as the source of visits, and
@@ -45,16 +58,22 @@ export const createLoadVisits = ({
   progressChanged,
   batchSize,
 }: CreateLoadVisitsOptions) => {
-  const loadVisitsInParallel = async (query: NonPageVisitsParams, pages: number[]): Promise<ShlinkVisit[]> =>
+  const loadVisitsInParallel = async (
+    query: NonPageVisitsParams,
+    pages: number[]
+  ): Promise<ShlinkVisit[]> =>
     Promise.all(
-      pages.map(async (page) => visitsLoader({ ...query, page, itemsPerPage: ITEMS_PER_PAGE })
-        .then(({ data }) => data)),
+      pages.map(async (page) =>
+        visitsLoader({ ...query, page, itemsPerPage: ITEMS_PER_PAGE }).then(
+          ({ data }) => data
+        )
+      )
     ).then((result) => result.flat());
 
   const loadPagesBlocks = async (
     query: NonPageVisitsParams,
     pagesBlocks: number[][],
-    index = 0,
+    index = 0
   ): Promise<ShlinkVisit[]> => {
     if (shouldCancel()) {
       return [];
@@ -73,7 +92,11 @@ export const createLoadVisits = ({
 
   return async (query: NonPageVisitsParams): Promise<ShlinkVisit[]> => {
     // Start by loading first page
-    const { pagination, data } = await visitsLoader({ ...query, page: 1, itemsPerPage: ITEMS_PER_PAGE });
+    const { pagination, data } = await visitsLoader({
+      ...query,
+      page: 1,
+      itemsPerPage: ITEMS_PER_PAGE,
+    });
     // If there are no more pages, just return data
     if (isLastPage(pagination)) {
       return data;
@@ -91,11 +114,14 @@ export const createLoadVisits = ({
   };
 };
 
-export const lastVisitLoaderForLoader = (
-  doIntervalFallback: boolean,
-  loader: (params: ShlinkVisitsParams) => Promise<ShlinkVisitsList>,
-): LastVisitLoader => async (excludeBots?: boolean) => (
-  !doIntervalFallback
-    ? Promise.resolve(undefined)
-    : loader({ page: 1, itemsPerPage: 1, excludeBots }).then(({ data }) => data[0])
-);
+export const lastVisitLoaderForLoader =
+  (
+    doIntervalFallback: boolean,
+    loader: (params: ShlinkVisitsParams) => Promise<ShlinkVisitsList>
+  ): LastVisitLoader =>
+  async (excludeBots?: boolean) =>
+    !doIntervalFallback
+      ? Promise.resolve(undefined)
+      : loader({ page: 1, itemsPerPage: 1, excludeBots }).then(
+          ({ data }) => data[0]
+        );

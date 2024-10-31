@@ -13,14 +13,18 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         'api-contract': resolve(__dirname, 'src/api-contract/index.ts'),
-        'settings': resolve(__dirname, 'src/settings/index.ts'),
+        settings: resolve(__dirname, 'src/settings/index.ts'),
       },
       name: 'shlink-web-component',
       formats: ['es'], // Generate ES module only
     },
     rollupOptions: {
       // Make sure dependencies and peer dependencies are not bundled with the library
-      external: [...Object.keys(pack.dependencies), ...Object.keys(pack.peerDependencies), 'react/jsx-runtime'],
+      external: [
+        ...Object.keys(pack.dependencies),
+        ...Object.keys(pack.peerDependencies),
+        'react/jsx-runtime',
+      ],
       output: {
         // This ensures generated CSS file is called index.css, not style.css
         assetFileNames: 'index.[ext]',
@@ -30,7 +34,13 @@ export default defineConfig({
 
   server: {
     watch: {
-      ignored: ['**/home/**', '**/dist/**', '**/.idea/**', '**/node_modules/**', '**/.git/**'],
+      ignored: [
+        '**/home/**',
+        '**/dist/**',
+        '**/.idea/**',
+        '**/node_modules/**',
+        '**/.git/**',
+      ],
     },
   },
 

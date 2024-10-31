@@ -1,10 +1,14 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { ShlinkApiClient } from '../../../src/api-contract';
-import { tagDeleted, tagDeleteReducerCreator } from '../../../src/tags/reducers/tagDelete';
+import {
+  tagDeleted,
+  tagDeleteReducerCreator,
+} from '../../../src/tags/reducers/tagDelete';
 
 describe('tagDeleteReducer', () => {
   const deleteTagsCall = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({ deleteTags: deleteTagsCall });
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({ deleteTags: deleteTagsCall });
   const { reducer, deleteTag } = tagDeleteReducerCreator(buildShlinkApiClient);
 
   describe('reducer', () => {
@@ -25,7 +29,9 @@ describe('tagDeleteReducer', () => {
     });
 
     it('returns tag names on DELETE_TAG', () => {
-      expect(reducer(undefined, deleteTag.fulfilled(undefined, '', ''))).toEqual({
+      expect(
+        reducer(undefined, deleteTag.fulfilled(undefined, '', ''))
+      ).toEqual({
         deleting: false,
         deleted: true,
         error: false,
@@ -52,7 +58,9 @@ describe('tagDeleteReducer', () => {
       expect(deleteTagsCall).toHaveBeenNthCalledWith(1, [tag]);
 
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ payload: undefined }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({ payload: undefined })
+      );
     });
   });
 });

@@ -1,4 +1,8 @@
-import type { ShlinkOrphanVisitType, ShlinkShortUrl, ShlinkVisit } from '../../api-contract';
+import type {
+  ShlinkOrphanVisitType,
+  ShlinkShortUrl,
+  ShlinkVisit,
+} from '../../api-contract';
 import type { DateRange } from '../../utils/dates/helpers/dateIntervals';
 
 export interface ParsedUserAgent {
@@ -60,6 +64,7 @@ export type VisitsParams = {
   filter?: VisitsFilter;
 };
 
-export type HighlightableProps<T extends NormalizedVisit> = T extends NormalizedOrphanVisit
-  ? ('referer' | 'country' | 'city' | 'visitedUrl')
-  : ('referer' | 'country' | 'city');
+export type HighlightableProps<T extends NormalizedVisit> =
+  T extends NormalizedOrphanVisit
+    ? 'referer' | 'country' | 'city' | 'visitedUrl'
+    : 'referer' | 'country' | 'city';

@@ -5,7 +5,7 @@ export const bindToMercureTopic = <T>(
   mercureInfo: MercureInfo,
   topics: string[],
   onMessage: (message: T) => void,
-  onTokenExpired: () => void,
+  onTokenExpired: () => void
 ) => {
   const { mercureHubUrl, token, loading, error } = mercureInfo;
 
@@ -13,8 +13,10 @@ export const bindToMercureTopic = <T>(
     return undefined;
   }
 
-  const onEventSourceMessage = ({ data }: { data: string }) => onMessage(JSON.parse(data) as T);
-  const onEventSourceError = ({ status }: { status: number }) => status === 401 && onTokenExpired();
+  const onEventSourceMessage = ({ data }: { data: string }) =>
+    onMessage(JSON.parse(data) as T);
+  const onEventSourceError = ({ status }: { status: number }) =>
+    status === 401 && onTokenExpired();
 
   const subscriptions = topics.map((topic) => {
     const hubUrl = new URL(mercureHubUrl);

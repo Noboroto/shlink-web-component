@@ -16,16 +16,22 @@ const initialState: MercureInfo = {
   error: false,
 };
 
-export const mercureInfoReducerCreator = (apiClientFactory: () => ShlinkApiClient) => {
+export const mercureInfoReducerCreator = (
+  apiClientFactory: () => ShlinkApiClient
+) => {
   const loadMercureInfo = createAsyncThunk(
     `${REDUCER_PREFIX}/loadMercureInfo`,
     (settings?: Settings): Promise<ShlinkMercureInfo> => {
-      if (settings && settings.realTimeUpdates && !settings.realTimeUpdates.enabled) {
+      if (
+        settings &&
+        settings.realTimeUpdates &&
+        !settings.realTimeUpdates.enabled
+      ) {
         throw new Error('Real time updates not enabled');
       }
 
       return apiClientFactory().mercureInfo();
-    },
+    }
   );
 
   const { reducer } = createSlice({
@@ -33,9 +39,21 @@ export const mercureInfoReducerCreator = (apiClientFactory: () => ShlinkApiClien
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-      builder.addCase(loadMercureInfo.pending, (state) => ({ ...state, loading: true, error: false }));
-      builder.addCase(loadMercureInfo.rejected, (state) => ({ ...state, loading: false, error: true }));
-      builder.addCase(loadMercureInfo.fulfilled, (_, { payload }) => ({ ...payload, loading: false, error: false }));
+      builder.addCase(loadMercureInfo.pending, (state) => ({
+        ...state,
+        loading: true,
+        error: false,
+      }));
+      builder.addCase(loadMercureInfo.rejected, (state) => ({
+        ...state,
+        loading: false,
+        error: true,
+      }));
+      builder.addCase(loadMercureInfo.fulfilled, (_, { payload }) => ({
+        ...payload,
+        loading: false,
+        error: false,
+      }));
     },
   });
 

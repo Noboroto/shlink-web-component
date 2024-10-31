@@ -34,17 +34,25 @@ const INTERVAL_TO_STRING_MAP: Record<DateInterval, string | undefined> = {
 
 const INTERVALS = Object.keys(INTERVAL_TO_STRING_MAP) as DateInterval[];
 
-export const dateRangeIsEmpty = (dateRange?: DateRange): boolean => !dateRange
-  || (!dateRange.startDate && !dateRange.endDate);
+export const dateRangeIsEmpty = (dateRange?: DateRange): boolean =>
+  !dateRange || (!dateRange.startDate && !dateRange.endDate);
 
-export const rangeIsInterval = (range?: DateRange | DateInterval): range is DateInterval =>
+export const rangeIsInterval = (
+  range?: DateRange | DateInterval
+): range is DateInterval =>
   typeof range === 'string' && INTERVALS.includes(range);
 
-export const DATE_INTERVALS = INTERVALS.filter((value) => value !== ALL) as Exclude<DateInterval, typeof ALL>[];
+export const DATE_INTERVALS = INTERVALS.filter(
+  (value) => value !== ALL
+) as Exclude<DateInterval, typeof ALL>[];
 
-const dateOrNull = (date?: string): Date | null => (date ? parseISO(date) : null);
+const dateOrNull = (date?: string): Date | null =>
+  date ? parseISO(date) : null;
 
-export const datesToDateRange = (startDate?: string, endDate?: string): DateRange => ({
+export const datesToDateRange = (
+  startDate?: string,
+  endDate?: string
+): DateRange => ({
   startDate: dateOrNull(startDate),
   endDate: dateOrNull(endDate),
 });
@@ -65,7 +73,9 @@ const dateRangeToString = (range?: DateRange): string | undefined => {
   return `${formatInternational(range.startDate)} - ${formatInternational(range.endDate)}`;
 };
 
-export const rangeOrIntervalToString = (range?: DateRange | DateInterval): string | undefined => {
+export const rangeOrIntervalToString = (
+  range?: DateRange | DateInterval
+): string | undefined => {
   if (!range || range === ALL) {
     return undefined;
   }
@@ -78,12 +88,21 @@ export const rangeOrIntervalToString = (range?: DateRange | DateInterval): strin
 };
 
 const startOfDaysAgo = (daysAgo: number) => startOfDay(subDays(now(), daysAgo));
-const endingToday = (startDate: Date): DateRange => ({ startDate, endDate: endOfDay(now()) });
+const endingToday = (startDate: Date): DateRange => ({
+  startDate,
+  endDate: endOfDay(now()),
+});
 
 export const intervalToDateRange = (interval?: DateInterval): DateRange => {
   const conditions: [() => boolean, () => DateRange][] = [
     [() => interval === 'today', () => endingToday(startOfDay(now()))],
-    [() => interval === 'yesterday', () => ({ startDate: startOfDaysAgo(1), endDate: endOfDay(subDays(now(), 1)) })],
+    [
+      () => interval === 'yesterday',
+      () => ({
+        startDate: startOfDaysAgo(1),
+        endDate: endOfDay(subDays(now(), 1)),
+      }),
+    ],
     [() => interval === 'last7Days', () => endingToday(startOfDaysAgo(7))],
     [() => interval === 'last30Days', () => endingToday(startOfDaysAgo(30))],
     [() => interval === 'last90Days', () => endingToday(startOfDaysAgo(90))],
@@ -109,7 +128,9 @@ export const dateToMatchingInterval = (date: DateOrString): DateInterval => {
   return conditions.find(([matcher]) => matcher())?.[1] ?? ALL;
 };
 
-export const toDateRange = (rangeOrInterval: DateRange | DateInterval): DateRange => {
+export const toDateRange = (
+  rangeOrInterval: DateRange | DateInterval
+): DateRange => {
   if (rangeIsInterval(rangeOrInterval)) {
     return intervalToDateRange(rangeOrInterval);
   }
@@ -117,8 +138,9 @@ export const toDateRange = (rangeOrInterval: DateRange | DateInterval): DateRang
   return rangeOrInterval;
 };
 
-export const isMandatoryStartDateRange = (dateRange?: DateRange): dateRange is MandatoryStartDateRange =>
-  !!(dateRange && dateRange.startDate);
+export const isMandatoryStartDateRange = (
+  dateRange?: DateRange
+): dateRange is MandatoryStartDateRange => !!(dateRange && dateRange.startDate);
 
 /**
  * Returns the previous date range, using days as the minimum time unit.
@@ -130,18 +152,22 @@ export const isMandatoryStartDateRange = (dateRange?: DateRange): dateRange is M
  *
  * Only the startDate is required. The endDate will fall back to current date if not provided
  */
-export const calcPrevDateRange = (
-  { startDate, endDate: optionalEndDate }: MandatoryStartDateRange,
-): StrictDateRange => {
+export const calcPrevDateRange = ({
+  startDate,
+  endDate: optionalEndDate,
+}: MandatoryStartDateRange): StrictDateRange => {
   const endDate = optionalEndDate ?? new Date();
-  const daysDiff = differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1;
+  const daysDiff =
+    differenceInDays(endOfDay(endDate), startOfDay(startDate)) + 1;
   const newStartDate = subDays(startOfDay(startDate), daysDiff);
   const newEndDate = subDays(endOfDay(startDate), 1);
 
   return { startDate: newStartDate, endDate: newEndDate };
 };
 
-export const dateRangeDaysDiff = (dateRange?: DateRange): number | undefined => {
+export const dateRangeDaysDiff = (
+  dateRange?: DateRange
+): number | undefined => {
   if (!isMandatoryStartDateRange(dateRange)) {
     return undefined;
   }

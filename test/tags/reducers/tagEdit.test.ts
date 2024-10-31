@@ -1,6 +1,10 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { ShlinkApiClient } from '../../../src/api-contract';
-import { editTag as editTagCreator, tagEdited, tagEditReducerCreator } from '../../../src/tags/reducers/tagEdit';
+import {
+  editTag as editTagCreator,
+  tagEdited,
+  tagEditReducerCreator,
+} from '../../../src/tags/reducers/tagEdit';
 import type { ColorGenerator } from '../../../src/utils/services/ColorGenerator';
 
 describe('tagEditReducer', () => {
@@ -8,8 +12,11 @@ describe('tagEditReducer', () => {
   const newName = 'bar';
   const color = '#ff0000';
   const editTagCall = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({ editTag: editTagCall });
-  const colorGenerator = fromPartial<ColorGenerator>({ setColorForKey: vi.fn() });
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({ editTag: editTagCall });
+  const colorGenerator = fromPartial<ColorGenerator>({
+    setColorForKey: vi.fn(),
+  });
   const editTag = editTagCreator(buildShlinkApiClient, colorGenerator);
   const { reducer } = tagEditReducerCreator(editTag);
 
@@ -23,7 +30,9 @@ describe('tagEditReducer', () => {
     });
 
     it('returns error on EDIT_TAG_ERROR', () => {
-      expect(reducer(undefined, editTag.rejected(null, '', fromPartial({})))).toEqual({
+      expect(
+        reducer(undefined, editTag.rejected(null, '', fromPartial({})))
+      ).toEqual({
         editing: false,
         edited: false,
         error: true,
@@ -31,7 +40,12 @@ describe('tagEditReducer', () => {
     });
 
     it('returns tag names on EDIT_TAG', () => {
-      expect(reducer(undefined, editTag.fulfilled({ oldName, newName, color }, '', fromPartial({})))).toEqual({
+      expect(
+        reducer(
+          undefined,
+          editTag.fulfilled({ oldName, newName, color }, '', fromPartial({}))
+        )
+      ).toEqual({
         editing: false,
         edited: true,
         error: false,
@@ -60,12 +74,17 @@ describe('tagEditReducer', () => {
       expect(editTagCall).toHaveBeenCalledWith(oldName, newName);
 
       expect(colorGenerator.setColorForKey).toHaveBeenCalledOnce();
-      expect(colorGenerator.setColorForKey).toHaveBeenCalledWith(newName, color);
+      expect(colorGenerator.setColorForKey).toHaveBeenCalledWith(
+        newName,
+        color
+      );
 
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { oldName, newName, color },
-      }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: { oldName, newName, color },
+        })
+      );
     });
   });
 });

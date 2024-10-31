@@ -1,5 +1,11 @@
 import type { CSSProperties } from 'react';
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 
 export type VisitsComparisonItem = {
   name: string;
@@ -15,7 +21,9 @@ export type VisitsComparison = {
   clearItemsToCompare: () => void;
 };
 
-const VisitsComparisonContext = createContext<VisitsComparison | undefined>(undefined);
+const VisitsComparisonContext = createContext<VisitsComparison | undefined>(
+  undefined
+);
 
 export const { Provider: VisitsComparisonProvider } = VisitsComparisonContext;
 
@@ -27,21 +35,35 @@ export const useVisitsComparisonContext = (): VisitsComparison | undefined => {
 const MAX_ITEMS = 5;
 
 export const useVisitsComparison = (): VisitsComparison => {
-  const [itemsToCompare, setItemsToCompare] = useState<VisitsComparisonItem[]>([]);
-  const maxItemsReached = useMemo(() => itemsToCompare.length >= MAX_ITEMS, [itemsToCompare.length]);
+  const [itemsToCompare, setItemsToCompare] = useState<VisitsComparisonItem[]>(
+    []
+  );
+  const maxItemsReached = useMemo(
+    () => itemsToCompare.length >= MAX_ITEMS,
+    [itemsToCompare.length]
+  );
   const addItemToCompare = useCallback(
-    (item: VisitsComparisonItem) => !maxItemsReached && setItemsToCompare((prev) => [...prev, item]),
-    [maxItemsReached],
+    (item: VisitsComparisonItem) =>
+      !maxItemsReached && setItemsToCompare((prev) => [...prev, item]),
+    [maxItemsReached]
   );
   const canAddItemWithName = useCallback(
-    (name: VisitsComparisonItem['name']) => !maxItemsReached && itemsToCompare.every((item) => item.name !== name),
-    [itemsToCompare, maxItemsReached],
+    (name: VisitsComparisonItem['name']) =>
+      !maxItemsReached && itemsToCompare.every((item) => item.name !== name),
+    [itemsToCompare, maxItemsReached]
   );
   const removeItemToCompare = useCallback(
-    (item: VisitsComparisonItem) => setItemsToCompare((prev) => prev.filter((i) => i !== item)),
-    [],
+    (item: VisitsComparisonItem) =>
+      setItemsToCompare((prev) => prev.filter((i) => i !== item)),
+    []
   );
   const clearItemsToCompare = useCallback(() => setItemsToCompare([]), []);
 
-  return { itemsToCompare, addItemToCompare, removeItemToCompare, clearItemsToCompare, canAddItemWithName };
+  return {
+    itemsToCompare,
+    addItemToCompare,
+    removeItemToCompare,
+    clearItemsToCompare,
+    canAddItemWithName,
+  };
 };

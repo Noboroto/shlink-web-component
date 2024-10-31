@@ -34,7 +34,9 @@ export class ColorGenerator {
     return color;
   }
 
-  public stylesForKey(key: string): Pick<CSSProperties, 'color' | 'backgroundColor'> {
+  public stylesForKey(
+    key: string
+  ): Pick<CSSProperties, 'color' | 'backgroundColor'> {
     const backgroundColor = this.getColorForKey(key);
     return {
       backgroundColor,

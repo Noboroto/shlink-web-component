@@ -31,36 +31,46 @@ export const tagEdited = createAction<EditTag>(`${REDUCER_PREFIX}/tagEdited`);
 
 export const editTag = (
   apiClientFactory: () => ShlinkApiClient,
-  colorGenerator: ColorGenerator,
-) => createAsyncThunk(
-  `${REDUCER_PREFIX}/editTag`,
-  async ({ oldName, newName, color }: EditTag): Promise<EditTag> => {
-    await apiClientFactory().editTag(oldName, newName);
-    colorGenerator.setColorForKey(newName, color);
+  colorGenerator: ColorGenerator
+) =>
+  createAsyncThunk(
+    `${REDUCER_PREFIX}/editTag`,
+    async ({ oldName, newName, color }: EditTag): Promise<EditTag> => {
+      await apiClientFactory().editTag(oldName, newName);
+      colorGenerator.setColorForKey(newName, color);
 
-    return { oldName, newName, color };
-  },
-);
+      return { oldName, newName, color };
+    }
+  );
 
-export const tagEditReducerCreator = (editTagThunk: ReturnType<typeof editTag>) => createSlice({
-  name: REDUCER_PREFIX,
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(editTagThunk.pending, () => ({ editing: true, edited: false, error: false }));
-    builder.addCase(
-      editTagThunk.rejected,
-      (_, { error }) => ({ editing: false, edited: false, error: true, errorData: parseApiError(error) }),
-    );
-    builder.addCase(editTagThunk.fulfilled, (_, { payload }) => {
-      const { oldName, newName } = payload;
-      return {
-        oldName,
-        newName,
-        editing: false,
-        edited: true,
+export const tagEditReducerCreator = (
+  editTagThunk: ReturnType<typeof editTag>
+) =>
+  createSlice({
+    name: REDUCER_PREFIX,
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+      builder.addCase(editTagThunk.pending, () => ({
+        editing: true,
+        edited: false,
         error: false,
-      };
-    });
-  },
-});
+      }));
+      builder.addCase(editTagThunk.rejected, (_, { error }) => ({
+        editing: false,
+        edited: false,
+        error: true,
+        errorData: parseApiError(error),
+      }));
+      builder.addCase(editTagThunk.fulfilled, (_, { payload }) => {
+        const { oldName, newName } = payload;
+        return {
+          oldName,
+          newName,
+          editing: false,
+          edited: true,
+          error: false,
+        };
+      });
+    },
+  });

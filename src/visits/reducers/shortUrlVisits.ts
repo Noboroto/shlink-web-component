@@ -2,7 +2,11 @@ import type { ShlinkVisitsParams } from '@shlinkio/shlink-js-sdk/api-contract';
 import type { ShlinkApiClient } from '../../api-contract';
 import type { ShortUrlIdentifier } from '../../short-urls/data';
 import { filterCreatedVisitsByShortUrl } from '../helpers';
-import { createVisitsAsyncThunk, createVisitsReducer, lastVisitLoaderForLoader } from './common';
+import {
+  createVisitsAsyncThunk,
+  createVisitsReducer,
+  lastVisitLoaderForLoader,
+} from './common';
 import type { deleteShortUrlVisits } from './shortUrlVisitsDeletion';
 import type { LoadVisits, VisitsInfo } from './types';
 
@@ -21,43 +25,56 @@ const initialState: ShortUrlVisits = {
 
 export type LoadShortUrlVisits = LoadVisits & ShortUrlIdentifier;
 
-export const getShortUrlVisits = (apiClientFactory: () => ShlinkApiClient) => createVisitsAsyncThunk({
-  typePrefix: `${REDUCER_PREFIX}/getShortUrlVisits`,
-  createLoaders: ({ shortCode, domain, options }: LoadShortUrlVisits) => {
-    const apiClient = apiClientFactory();
-    const { doIntervalFallback = false } = options;
+export const getShortUrlVisits = (apiClientFactory: () => ShlinkApiClient) =>
+  createVisitsAsyncThunk({
+    typePrefix: `${REDUCER_PREFIX}/getShortUrlVisits`,
+    createLoaders: ({ shortCode, domain, options }: LoadShortUrlVisits) => {
+      const apiClient = apiClientFactory();
+      const { doIntervalFallback = false } = options;
 
-    const visitsLoader = (query: ShlinkVisitsParams) => apiClient.getShortUrlVisits(shortCode, { ...query, domain });
-    const lastVisitLoader = lastVisitLoaderForLoader(
-      doIntervalFallback,
-      (q) => apiClient.getShortUrlVisits(shortCode, { ...q, domain }),
-    );
+      const visitsLoader = (query: ShlinkVisitsParams) =>
+        apiClient.getShortUrlVisits(shortCode, { ...query, domain });
+      const lastVisitLoader = lastVisitLoaderForLoader(
+        doIntervalFallback,
+        (q) => apiClient.getShortUrlVisits(shortCode, { ...q, domain })
+      );
 
-    return { visitsLoader, lastVisitLoader };
-  },
-  shouldCancel: (getState) => getState().shortUrlVisits.cancelLoad,
-});
+      return { visitsLoader, lastVisitLoader };
+    },
+    shouldCancel: (getState) => getState().shortUrlVisits.cancelLoad,
+  });
 
 export const shortUrlVisitsReducerCreator = (
   asyncThunkCreator: ReturnType<typeof getShortUrlVisits>,
-  deleteShortUrlVisitsThunk: ReturnType<typeof deleteShortUrlVisits>,
-) => createVisitsReducer({
-  name: REDUCER_PREFIX,
-  initialState,
-  // @ts-expect-error TODO Fix type inference
-  asyncThunkCreator,
-  extraReducers: (builder) => {
-    builder.addCase(deleteShortUrlVisitsThunk.fulfilled, (state, { payload }) => {
-      if (state.shortCode === payload.shortCode && state.domain === payload.domain) {
-        return { ...state, visits: [] };
-      }
+  deleteShortUrlVisitsThunk: ReturnType<typeof deleteShortUrlVisits>
+) =>
+  createVisitsReducer({
+    name: REDUCER_PREFIX,
+    initialState,
+    // @ts-expect-error TODO Fix type inference
+    asyncThunkCreator,
+    extraReducers: (builder) => {
+      builder.addCase(
+        deleteShortUrlVisitsThunk.fulfilled,
+        (state, { payload }) => {
+          if (
+            state.shortCode === payload.shortCode &&
+            state.domain === payload.domain
+          ) {
+            return { ...state, visits: [] };
+          }
 
-      return state;
-    });
-  },
-  filterCreatedVisits: ({ shortCode, domain, params }: ShortUrlVisits, createdVisits) => filterCreatedVisitsByShortUrl(
-    createdVisits,
-    { shortCode, domain },
-    params?.dateRange,
-  ),
-});
+          return state;
+        }
+      );
+    },
+    filterCreatedVisits: (
+      { shortCode, domain, params }: ShortUrlVisits,
+      createdVisits
+    ) =>
+      filterCreatedVisitsByShortUrl(
+        createdVisits,
+        { shortCode, domain },
+        params?.dateRange
+      ),
+  });

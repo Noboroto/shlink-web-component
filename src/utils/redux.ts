@@ -7,9 +7,16 @@ type ShlinkAsyncThunkConfig = {
   serializedErrorType: any;
 };
 
-type ShlinkPayloadCreator<Returned, ThunkArg> = AsyncThunkPayloadCreator<Returned, ThunkArg, ShlinkAsyncThunkConfig>;
+type ShlinkPayloadCreator<Returned, ThunkArg> = AsyncThunkPayloadCreator<
+  Returned,
+  ThunkArg,
+  ShlinkAsyncThunkConfig
+>;
 
 export const createAsyncThunk = <Returned, ThunkArg = void>(
   typePrefix: string,
-  payloadCreator: ShlinkPayloadCreator<Returned, ThunkArg>,
-) => baseCreateAsyncThunk(typePrefix, payloadCreator, { serializeError: (e) => e });
+  payloadCreator: ShlinkPayloadCreator<Returned, ThunkArg>
+) =>
+  baseCreateAsyncThunk(typePrefix, payloadCreator, {
+    serializeError: (e) => e,
+  });

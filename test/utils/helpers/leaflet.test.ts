@@ -9,7 +9,8 @@ describe('leaflet', () => {
     it('updates icons used by leaflet', () => {
       fixLeafletIcons();
 
-      const { iconRetinaUrl, iconUrl, shadowUrl } = L.Icon.Default.prototype.options;
+      const { iconRetinaUrl, iconUrl, shadowUrl } =
+        L.Icon.Default.prototype.options;
 
       expect(iconRetinaUrl).toEqual(marker2x);
       expect(iconUrl).toEqual(marker);

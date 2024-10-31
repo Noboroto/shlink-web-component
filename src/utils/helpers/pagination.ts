@@ -9,10 +9,13 @@ type Ellipsis = typeof ELLIPSIS;
 
 export type NumberOrEllipsis = number | Ellipsis;
 
-export const progressivePagination = (currentPage: number, pageCount: number): NumberOrEllipsis[] => {
+export const progressivePagination = (
+  currentPage: number,
+  pageCount: number
+): NumberOrEllipsis[] => {
   const pages: NumberOrEllipsis[] = range(
     Math.max(DELTA, currentPage - DELTA),
-    Math.min(pageCount - 1, currentPage + DELTA) + 1,
+    Math.min(pageCount - 1, currentPage + DELTA) + 1
   );
 
   if (currentPage - DELTA > DELTA) {
@@ -28,12 +31,12 @@ export const progressivePagination = (currentPage: number, pageCount: number): N
   return pages;
 };
 
-export const pageIsEllipsis = (pageNumber: NumberOrEllipsis): pageNumber is Ellipsis => pageNumber === ELLIPSIS;
+export const pageIsEllipsis = (
+  pageNumber: NumberOrEllipsis
+): pageNumber is Ellipsis => pageNumber === ELLIPSIS;
 
-export const prettifyPageNumber = (pageNumber: NumberOrEllipsis): string => (
-  pageIsEllipsis(pageNumber) ? pageNumber : prettify(pageNumber)
-);
+export const prettifyPageNumber = (pageNumber: NumberOrEllipsis): string =>
+  pageIsEllipsis(pageNumber) ? pageNumber : prettify(pageNumber);
 
-export const keyForPage = (pageNumber: NumberOrEllipsis, index: number) => (
-  !pageIsEllipsis(pageNumber) ? `${pageNumber}` : `${pageNumber}_${index}`
-);
+export const keyForPage = (pageNumber: NumberOrEllipsis, index: number) =>
+  !pageIsEllipsis(pageNumber) ? `${pageNumber}` : `${pageNumber}_${index}`;

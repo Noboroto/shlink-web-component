@@ -1,4 +1,7 @@
-import type { ErrorType, ProblemDetailsError } from '@shlinkio/shlink-js-sdk/api-contract';
+import type {
+  ErrorType,
+  ProblemDetailsError,
+} from '@shlinkio/shlink-js-sdk/api-contract';
 
 // Re-export every type from the SDK
 export * from '@shlinkio/shlink-js-sdk/api-contract';

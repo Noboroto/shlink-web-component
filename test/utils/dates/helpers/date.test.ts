@@ -1,5 +1,10 @@
 import { addDays, formatISO, subDays } from 'date-fns';
-import { formatIsoDate, isBeforeOrEqual, isBetween, parseDate } from '../../../../src/utils/dates/helpers/date';
+import {
+  formatIsoDate,
+  isBeforeOrEqual,
+  isBetween,
+  parseDate,
+} from '../../../../src/utils/dates/helpers/date';
 
 describe('date', () => {
   const now = new Date();
@@ -33,9 +38,12 @@ describe('date', () => {
       [now, undefined, subDays(now, 1), false],
       [now, subDays(now, 3), subDays(now, 1), false],
       [now, addDays(now, 1), addDays(now, 3), false],
-    ])('returns true when a date is between provided range', (date, start, end, expectedResult) => {
-      expect(isBetween(date, start, end)).toEqual(expectedResult);
-    });
+    ])(
+      'returns true when a date is between provided range',
+      (date, start, end, expectedResult) => {
+        expect(isBetween(date, start, end)).toEqual(expectedResult);
+      }
+    );
   });
 
   describe('isBeforeOrEqual', () => {
@@ -43,8 +51,11 @@ describe('date', () => {
       [now, now, true],
       [now, addDays(now, 1), true],
       [now, subDays(now, 1), false],
-    ])('returns true when the date before or equal to provided one', (date, dateToCompare, expectedResult) => {
-      expect(isBeforeOrEqual(date, dateToCompare)).toEqual(expectedResult);
-    });
+    ])(
+      'returns true when the date before or equal to provided one',
+      (date, dateToCompare, expectedResult) => {
+        expect(isBeforeOrEqual(date, dateToCompare)).toEqual(expectedResult);
+      }
+    );
   });
 });

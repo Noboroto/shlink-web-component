@@ -5,7 +5,9 @@ import type { CreateVisit } from '../../../types';
 import type { VisitsComparisonInfo } from '../types';
 import type { createVisitsComparisonAsyncThunk } from './createVisitsComparisonAsyncThunk';
 
-type VisitsReducerOptions<AT extends ReturnType<typeof createVisitsComparisonAsyncThunk>> = {
+type VisitsReducerOptions<
+  AT extends ReturnType<typeof createVisitsComparisonAsyncThunk>,
+> = {
   name: string;
   asyncThunkCreator: AT;
   initialState: VisitsComparisonInfo;
@@ -15,9 +17,14 @@ type VisitsReducerOptions<AT extends ReturnType<typeof createVisitsComparisonAsy
   ) => CreateVisit[];
 };
 
-export const createVisitsComparisonReducer = <AT extends ReturnType<typeof createVisitsComparisonAsyncThunk>>(
-  { name, asyncThunkCreator, initialState, filterCreatedVisitsForGroup }: VisitsReducerOptions<AT>,
-) => {
+export const createVisitsComparisonReducer = <
+  AT extends ReturnType<typeof createVisitsComparisonAsyncThunk>,
+>({
+  name,
+  asyncThunkCreator,
+  initialState,
+  filterCreatedVisitsForGroup,
+}: VisitsReducerOptions<AT>) => {
   const { pending, rejected, fulfilled, progressChanged } = asyncThunkCreator;
   const { reducer, actions } = createSlice({
     name,
@@ -27,25 +34,35 @@ export const createVisitsComparisonReducer = <AT extends ReturnType<typeof creat
     },
     extraReducers: (builder) => {
       builder.addCase(pending, () => ({ ...initialState, loading: true }));
-      builder.addCase(rejected, (_, { error }) => (
-        { ...initialState, errorData: parseApiError(error) ?? null }
-      ));
-      builder.addCase(fulfilled, (state, { payload }) => (
-        { ...state, ...payload, loading: false, progress: null, errorData: null }
-      ));
+      builder.addCase(rejected, (_, { error }) => ({
+        ...initialState,
+        errorData: parseApiError(error) ?? null,
+      }));
+      builder.addCase(fulfilled, (state, { payload }) => ({
+        ...state,
+        ...payload,
+        loading: false,
+        progress: null,
+        errorData: null,
+      }));
 
-      builder.addCase(progressChanged, (state, { payload: progress }) => ({ ...state, progress }));
+      builder.addCase(progressChanged, (state, { payload: progress }) => ({
+        ...state,
+        progress,
+      }));
 
       builder.addCase(createNewVisits, (state, { payload }) => {
         const { visitsGroups, ...rest } = state;
-        const newVisitGroupsPairs = Object.keys(visitsGroups).map((groupKey) => {
-          const newVisits = filterCreatedVisitsForGroup(
-            { ...rest, groupKey },
-            payload.createdVisits,
-          ).map(({ visit }) => visit);
+        const newVisitGroupsPairs = Object.keys(visitsGroups).map(
+          (groupKey) => {
+            const newVisits = filterCreatedVisitsForGroup(
+              { ...rest, groupKey },
+              payload.createdVisits
+            ).map(({ visit }) => visit);
 
-          return [groupKey, [...newVisits, ...visitsGroups[groupKey]]];
-        });
+            return [groupKey, [...newVisits, ...visitsGroups[groupKey]]];
+          }
+        );
         const enhancedVisitsGroups = Object.fromEntries(newVisitGroupsPairs);
 
         return { ...rest, visitsGroups: enhancedVisitsGroups };

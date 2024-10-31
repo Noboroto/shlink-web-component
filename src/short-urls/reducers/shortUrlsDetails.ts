@@ -1,5 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { ProblemDetailsError, ShlinkApiClient, ShlinkShortUrl } from '../../api-contract';
+import type {
+  ProblemDetailsError,
+  ShlinkApiClient,
+  ShlinkShortUrl,
+} from '../../api-contract';
 import { parseApiError } from '../../api-contract/utils';
 import { createAsyncThunk } from '../../utils/redux';
 import type { ShortUrlIdentifier } from '../data';
@@ -19,22 +23,35 @@ const initialState: ShortUrlsDetails = {
   error: false,
 };
 
-export const shortUrlsDetailsReducerCreator = (apiClientFactory: () => ShlinkApiClient) => {
+export const shortUrlsDetailsReducerCreator = (
+  apiClientFactory: () => ShlinkApiClient
+) => {
   const getShortUrlsDetails = createAsyncThunk(
     `${REDUCER_PREFIX}/getShortUrlsDetails`,
-    async (identifiers: ShortUrlIdentifier[], { getState }): Promise<Map<ShortUrlIdentifier, ShlinkShortUrl>> => {
+    async (
+      identifiers: ShortUrlIdentifier[],
+      { getState }
+    ): Promise<Map<ShortUrlIdentifier, ShlinkShortUrl>> => {
       const { shortUrlsList } = getState();
-      const pairs = await Promise.all(identifiers.map(
-        async (identifier): Promise<[ShortUrlIdentifier, ShlinkShortUrl]> => {
-          const { shortCode, domain } = identifier;
-          const alreadyLoaded = shortUrlsList?.shortUrls?.data.find((url) => shortUrlMatches(url, shortCode, domain));
+      const pairs = await Promise.all(
+        identifiers.map(
+          async (identifier): Promise<[ShortUrlIdentifier, ShlinkShortUrl]> => {
+            const { shortCode, domain } = identifier;
+            const alreadyLoaded = shortUrlsList?.shortUrls?.data.find((url) =>
+              shortUrlMatches(url, shortCode, domain)
+            );
 
-          return [identifier, alreadyLoaded ?? await apiClientFactory().getShortUrl(shortCode, domain)];
-        },
-      ));
+            return [
+              identifier,
+              alreadyLoaded ??
+                (await apiClientFactory().getShortUrl(shortCode, domain)),
+            ];
+          }
+        )
+      );
 
       return new Map(pairs);
-    },
+    }
   );
 
   const { reducer } = createSlice({
@@ -42,11 +59,19 @@ export const shortUrlsDetailsReducerCreator = (apiClientFactory: () => ShlinkApi
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-      builder.addCase(getShortUrlsDetails.pending, () => ({ loading: true, error: false }));
-      builder.addCase(getShortUrlsDetails.rejected, (_, { error }) => (
-        { loading: false, error: true, errorData: parseApiError(error) }
-      ));
-      builder.addCase(getShortUrlsDetails.fulfilled, (_, { payload: shortUrls }) => ({ ...initialState, shortUrls }));
+      builder.addCase(getShortUrlsDetails.pending, () => ({
+        loading: true,
+        error: false,
+      }));
+      builder.addCase(getShortUrlsDetails.rejected, (_, { error }) => ({
+        loading: false,
+        error: true,
+        errorData: parseApiError(error),
+      }));
+      builder.addCase(
+        getShortUrlsDetails.fulfilled,
+        (_, { payload: shortUrls }) => ({ ...initialState, shortUrls })
+      );
     },
   });
 

@@ -16,27 +16,37 @@ type AnyFunction = (...any: unknown[]) => unknown;
 type LazyActionMap = Record<string, AnyFunction>;
 
 // FIXME Change this API to be (options: { props: string[] | null; actions?: string[] }) => any;
-export type ConnectDecorator = (props: string[] | null, actions?: string[]) => any;
+export type ConnectDecorator = (
+  props: string[] | null,
+  actions?: string[]
+) => any;
 
 export const bottle = new Bottle();
 
 export const { container } = bottle;
 
-const pickProps = (propsToPick: string[]) => (obj: any) => Object.fromEntries(
-  propsToPick.map((key) => [key, obj[key]]),
-);
+const pickProps = (propsToPick: string[]) => (obj: any) =>
+  Object.fromEntries(propsToPick.map((key) => [key, obj[key]]));
 
-const lazyService = <T extends AnyFunction, K>(cont: IContainer, serviceName: string) =>
-  (...args: any[]) => (cont[serviceName] as T)(...args) as K;
-const mapActionService = (map: LazyActionMap, actionName: string): LazyActionMap => ({
+const lazyService =
+  <T extends AnyFunction, K>(cont: IContainer, serviceName: string) =>
+  (...args: any[]) =>
+    (cont[serviceName] as T)(...args) as K;
+const mapActionService = (
+  map: LazyActionMap,
+  actionName: string
+): LazyActionMap => ({
   ...map,
   // Wrap actual action service in a function so that it is lazily created the first time it is called
   [actionName]: lazyService(container, actionName),
 });
-const connect: ConnectDecorator = (propsFromState: string[] | null, actionServiceNames: string[] = []) =>
+const connect: ConnectDecorator = (
+  propsFromState: string[] | null,
+  actionServiceNames: string[] = []
+) =>
   reduxConnect(
     propsFromState ? pickProps(propsFromState) : null,
-    actionServiceNames.reduce(mapActionService, {}),
+    actionServiceNames.reduce(mapActionService, {})
   );
 
 provideWebComponentServices(bottle);

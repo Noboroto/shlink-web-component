@@ -5,7 +5,10 @@ export const getColorForKey = vi.fn(() => 'red');
 
 export const setColorForKey = vi.fn();
 
-export const stylesForKey = vi.fn(() => ({ backgroundColor: 'red', color: '#fff' }));
+export const stylesForKey = vi.fn(() => ({
+  backgroundColor: 'red',
+  color: '#fff',
+}));
 
 export const colorGeneratorMock = fromPartial<ColorGenerator>({
   getColorForKey,

@@ -1,6 +1,10 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { addDays, formatISO, subDays } from 'date-fns';
-import type { ShlinkApiClient, ShlinkVisit, ShlinkVisitsList } from '../../../src/api-contract';
+import type {
+  ShlinkApiClient,
+  ShlinkVisit,
+  ShlinkVisitsList,
+} from '../../../src/api-contract';
 import type { RootState } from '../../../src/container/store';
 import { formatIsoDate } from '../../../src/utils/dates/helpers/date';
 import type { DateInterval } from '../../../src/utils/dates/helpers/dateIntervals';
@@ -9,39 +13,58 @@ import {
   getNonOrphanVisits as getNonOrphanVisitsCreator,
   nonOrphanVisitsReducerCreator,
 } from '../../../src/visits/reducers/nonOrphanVisits';
-import type { LoadVisits, VisitsInfo } from '../../../src/visits/reducers/types';
+import type {
+  LoadVisits,
+  VisitsInfo,
+} from '../../../src/visits/reducers/types';
 import { createNewVisits } from '../../../src/visits/reducers/visitCreation';
 import { problemDetailsError } from '../../__mocks__/ProblemDetailsError.mock';
 
 describe('nonOrphanVisitsReducer', () => {
   const now = new Date();
   const dateForVisit = (day: number) => `2020-01-1${day}T00:00:00Z`;
-  const visitsMocks = rangeOf(2, (index) => fromPartial<ShlinkVisit>({ date: dateForVisit(index) }));
+  const visitsMocks = rangeOf(2, (index) =>
+    fromPartial<ShlinkVisit>({ date: dateForVisit(index) })
+  );
   const getNonOrphanVisitsCall = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({ getNonOrphanVisits: getNonOrphanVisitsCall });
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({
+      getNonOrphanVisits: getNonOrphanVisitsCall,
+    });
   const getNonOrphanVisits = getNonOrphanVisitsCreator(buildShlinkApiClient);
-  const { reducer, cancelGetVisits: cancelGetNonOrphanVisits } = nonOrphanVisitsReducerCreator(getNonOrphanVisits);
+  const { reducer, cancelGetVisits: cancelGetNonOrphanVisits } =
+    nonOrphanVisitsReducerCreator(getNonOrphanVisits);
 
   describe('reducer', () => {
-    const buildState = (data: Partial<VisitsInfo>) => fromPartial<VisitsInfo>(data);
+    const buildState = (data: Partial<VisitsInfo>) =>
+      fromPartial<VisitsInfo>(data);
 
     it('returns loading when pending', () => {
       const { loading } = reducer(
         buildState({ loading: false }),
-        getNonOrphanVisits.pending('', fromPartial({}), undefined),
+        getNonOrphanVisits.pending('', fromPartial({}), undefined)
       );
       expect(loading).toEqual(true);
     });
 
     it('returns cancelLoad when loading is cancelled', () => {
-      const { cancelLoad } = reducer(buildState({ cancelLoad: false }), cancelGetNonOrphanVisits());
+      const { cancelLoad } = reducer(
+        buildState({ cancelLoad: false }),
+        cancelGetNonOrphanVisits()
+      );
       expect(cancelLoad).toEqual(true);
     });
 
     it('stops loading and returns error when rejected', () => {
       const { loading, errorData } = reducer(
         buildState({ loading: true, errorData: null }),
-        getNonOrphanVisits.rejected(problemDetailsError, '', fromPartial({}), undefined, undefined),
+        getNonOrphanVisits.rejected(
+          problemDetailsError,
+          '',
+          fromPartial({}),
+          undefined,
+          undefined
+        )
       );
 
       expect(loading).toEqual(false);
@@ -52,7 +75,12 @@ describe('nonOrphanVisitsReducer', () => {
       const actionVisits: ShlinkVisit[] = [fromPartial({}), fromPartial({})];
       const { loading, errorData, visits } = reducer(
         buildState({ loading: true, errorData: null }),
-        getNonOrphanVisits.fulfilled({ visits: actionVisits }, '', fromPartial({}), undefined),
+        getNonOrphanVisits.fulfilled(
+          { visits: actionVisits },
+          '',
+          fromPartial({}),
+          undefined
+        )
       );
 
       expect(loading).toEqual(false);
@@ -100,23 +128,37 @@ describe('nonOrphanVisitsReducer', () => {
         }),
         visitsMocks.length + 2,
       ],
-    ])('prepends new visits when visits are created', (state, expectedVisits) => {
-      const prevState = buildState({ ...state, visits: visitsMocks });
-      const visit = fromPartial<ShlinkVisit>({ date: formatIsoDate(now) ?? undefined });
+    ])(
+      'prepends new visits when visits are created',
+      (state, expectedVisits) => {
+        const prevState = buildState({ ...state, visits: visitsMocks });
+        const visit = fromPartial<ShlinkVisit>({
+          date: formatIsoDate(now) ?? undefined,
+        });
 
-      const { visits } = reducer(prevState, createNewVisits([{ visit }, { visit }]));
+        const { visits } = reducer(
+          prevState,
+          createNewVisits([{ visit }, { visit }])
+        );
 
-      expect(visits).toHaveLength(expectedVisits);
-    });
+        expect(visits).toHaveLength(expectedVisits);
+      }
+    );
 
     it('returns new progress when progress is changed', () => {
-      const { progress } = reducer(undefined, getNonOrphanVisits.progressChanged(85));
+      const { progress } = reducer(
+        undefined,
+        getNonOrphanVisits.progressChanged(85)
+      );
       expect(progress).toEqual(85);
     });
 
     it('returns fallbackInterval when falling back to another interval', () => {
       const fallbackInterval: DateInterval = 'last30Days';
-      const state = reducer(undefined, getNonOrphanVisits.fallbackToInterval(fallbackInterval));
+      const state = reducer(
+        undefined,
+        getNonOrphanVisits.fallbackToInterval(fallbackInterval)
+      );
 
       expect(state).toEqual(expect.objectContaining({ fallbackInterval }));
     });
@@ -124,12 +166,16 @@ describe('nonOrphanVisitsReducer', () => {
 
   describe('getNonOrphanVisits', () => {
     const dispatchMock = vi.fn();
-    const getState = () => fromPartial<RootState>({
-      orphanVisits: { cancelLoad: false },
-    });
+    const getState = () =>
+      fromPartial<RootState>({
+        orphanVisits: { cancelLoad: false },
+      });
 
     it('dispatches start and success when promise is resolved', async () => {
-      const visits = visitsMocks.map((visit) => ({ ...visit, type: 'base_url' }));
+      const visits = visitsMocks.map((visit) => ({
+        ...visit,
+        type: 'base_url',
+      }));
       const getVisitsParam = { params: {}, options: {} };
 
       getNonOrphanVisitsCall.mockResolvedValue({
@@ -144,9 +190,11 @@ describe('nonOrphanVisitsReducer', () => {
       await getNonOrphanVisits(getVisitsParam)(dispatchMock, getState, {});
 
       expect(dispatchMock).toHaveBeenCalledTimes(2);
-      expect(dispatchMock).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { ...getVisitsParam, visits },
-      }));
+      expect(dispatchMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: { ...getVisitsParam, visits },
+        })
+      );
       expect(getNonOrphanVisitsCall).toHaveBeenCalledOnce();
     });
 
@@ -161,30 +209,44 @@ describe('nonOrphanVisitsReducer', () => {
         getNonOrphanVisits.fallbackToInterval('last365Days'),
         3,
       ],
-      [[], expect.objectContaining({ type: getNonOrphanVisits.fulfilled.toString() }), 2],
-    ])('dispatches fallback interval when the list of visits is empty', async (
-      lastVisits,
-      expectedSecondDispatch,
-      expectedAmountOfDispatches,
-    ) => {
-      const buildVisitsResult = (data: ShlinkVisit[] = []): ShlinkVisitsList => ({
-        data,
-        pagination: {
-          currentPage: 1,
-          pagesCount: 1,
-          totalItems: 1,
-        },
-      });
-      getNonOrphanVisitsCall
-        .mockResolvedValueOnce(buildVisitsResult())
-        .mockResolvedValueOnce(buildVisitsResult(lastVisits));
+      [
+        [],
+        expect.objectContaining({
+          type: getNonOrphanVisits.fulfilled.toString(),
+        }),
+        2,
+      ],
+    ])(
+      'dispatches fallback interval when the list of visits is empty',
+      async (
+        lastVisits,
+        expectedSecondDispatch,
+        expectedAmountOfDispatches
+      ) => {
+        const buildVisitsResult = (
+          data: ShlinkVisit[] = []
+        ): ShlinkVisitsList => ({
+          data,
+          pagination: {
+            currentPage: 1,
+            pagesCount: 1,
+            totalItems: 1,
+          },
+        });
+        getNonOrphanVisitsCall
+          .mockResolvedValueOnce(buildVisitsResult())
+          .mockResolvedValueOnce(buildVisitsResult(lastVisits));
 
-      await getNonOrphanVisits({ params: {}, options: { doIntervalFallback: true } })(dispatchMock, getState, {});
+        await getNonOrphanVisits({
+          params: {},
+          options: { doIntervalFallback: true },
+        })(dispatchMock, getState, {});
 
-      expect(dispatchMock).toHaveBeenCalledTimes(expectedAmountOfDispatches);
-      expect(dispatchMock).toHaveBeenNthCalledWith(2, expectedSecondDispatch);
-      expect(getNonOrphanVisitsCall).toHaveBeenCalledTimes(2);
-    });
+        expect(dispatchMock).toHaveBeenCalledTimes(expectedAmountOfDispatches);
+        expect(dispatchMock).toHaveBeenNthCalledWith(2, expectedSecondDispatch);
+        expect(getNonOrphanVisitsCall).toHaveBeenCalledTimes(2);
+      }
+    );
 
     it.each([
       // Strict date range and loadPrevInterval: true -> prev visits are loaded
@@ -223,33 +285,41 @@ describe('nonOrphanVisitsReducer', () => {
         loadPrevInterval: false,
         expectsPrevVisits: false,
       },
-    ])('returns visits from prev interval when requested and possible', async (
-      { dateRange, loadPrevInterval, expectsPrevVisits },
-    ) => {
-      const getVisitsParam: LoadVisits = {
-        params: { dateRange },
-        options: { loadPrevInterval },
-      };
-      const prevVisits = expectsPrevVisits ? visitsMocks.map(
-        (visit, index) => ({ ...visit, date: dateForVisit(index + 1 + visitsMocks.length) }),
-      ) : undefined;
+    ])(
+      'returns visits from prev interval when requested and possible',
+      async ({ dateRange, loadPrevInterval, expectsPrevVisits }) => {
+        const getVisitsParam: LoadVisits = {
+          params: { dateRange },
+          options: { loadPrevInterval },
+        };
+        const prevVisits = expectsPrevVisits
+          ? visitsMocks.map((visit, index) => ({
+              ...visit,
+              date: dateForVisit(index + 1 + visitsMocks.length),
+            }))
+          : undefined;
 
-      getNonOrphanVisitsCall.mockResolvedValue({
-        data: visitsMocks,
-        pagination: {
-          currentPage: 1,
-          pagesCount: 1,
-          totalItems: 1,
-        },
-      });
+        getNonOrphanVisitsCall.mockResolvedValue({
+          data: visitsMocks,
+          pagination: {
+            currentPage: 1,
+            pagesCount: 1,
+            totalItems: 1,
+          },
+        });
 
-      await getNonOrphanVisits(getVisitsParam)(dispatchMock, getState, {});
+        await getNonOrphanVisits(getVisitsParam)(dispatchMock, getState, {});
 
-      expect(dispatchMock).toHaveBeenCalledTimes(2);
-      expect(dispatchMock).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { visits: visitsMocks, prevVisits, ...getVisitsParam },
-      }));
-      expect(getNonOrphanVisitsCall).toHaveBeenCalledTimes(expectsPrevVisits ? 2 : 1);
-    });
+        expect(dispatchMock).toHaveBeenCalledTimes(2);
+        expect(dispatchMock).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            payload: { visits: visitsMocks, prevVisits, ...getVisitsParam },
+          })
+        );
+        expect(getNonOrphanVisitsCall).toHaveBeenCalledTimes(
+          expectsPrevVisits ? 2 : 1
+        );
+      }
+    );
   });
 });

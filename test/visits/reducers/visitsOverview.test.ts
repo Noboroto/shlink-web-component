@@ -1,5 +1,9 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { ShlinkApiClient, ShlinkOrphanVisit, ShlinkVisitsOverview } from '../../../src/api-contract';
+import type {
+  ShlinkApiClient,
+  ShlinkOrphanVisit,
+  ShlinkVisitsOverview,
+} from '../../../src/api-contract';
 import type { RootState } from '../../../src/container/store';
 import { createNewVisits } from '../../../src/visits/reducers/visitCreation';
 import type {
@@ -13,17 +17,19 @@ import {
 
 describe('visitsOverviewReducer', () => {
   const getVisitsOverview = vi.fn();
-  const buildApiClientMock = () => fromPartial<ShlinkApiClient>({ getVisitsOverview });
+  const buildApiClientMock = () =>
+    fromPartial<ShlinkApiClient>({ getVisitsOverview });
   const loadVisitsOverview = loadVisitsOverviewCreator(buildApiClientMock);
   const { reducer } = visitsOverviewReducerCreator(loadVisitsOverview);
 
   describe('reducer', () => {
-    const state = (payload: Partial<VisitsOverview> = {}) => fromPartial<VisitsOverview>(payload);
+    const state = (payload: Partial<VisitsOverview> = {}) =>
+      fromPartial<VisitsOverview>(payload);
 
     it('returns loading on GET_OVERVIEW_START', () => {
       const { loading } = reducer(
         state({ loading: false, error: false }),
-        loadVisitsOverview.pending(''),
+        loadVisitsOverview.pending('')
       );
 
       expect(loading).toEqual(true);
@@ -32,7 +38,7 @@ describe('visitsOverviewReducer', () => {
     it('stops loading and returns error on GET_OVERVIEW_ERROR', () => {
       const { loading, error } = reducer(
         state({ loading: true, error: false }),
-        loadVisitsOverview.rejected(null, ''),
+        loadVisitsOverview.rejected(null, '')
       );
 
       expect(loading).toEqual(false);
@@ -40,10 +46,16 @@ describe('visitsOverviewReducer', () => {
     });
 
     it('return visits overview on GET_OVERVIEW', () => {
-      const action = loadVisitsOverview.fulfilled(fromPartial({
-        nonOrphanVisits: { total: 100 },
-      }), 'requestId');
-      const { loading, error, nonOrphanVisits } = reducer(state({ loading: true, error: false }), action);
+      const action = loadVisitsOverview.fulfilled(
+        fromPartial({
+          nonOrphanVisits: { total: 100 },
+        }),
+        'requestId'
+      );
+      const { loading, error, nonOrphanVisits } = reducer(
+        state({ loading: true, error: false }),
+        action
+      );
 
       expect(loading).toEqual(false);
       expect(error).toEqual(false);
@@ -53,24 +65,33 @@ describe('visitsOverviewReducer', () => {
     it.each([
       [50, 53],
       [0, 3],
-    ])('returns updated amounts on CREATE_VISITS', (providedOrphanVisitsCount, expectedOrphanVisitsCount) => {
-      const { nonOrphanVisits, orphanVisits } = reducer(
-        state({
-          nonOrphanVisits: { total: 100 },
-          orphanVisits: { total: providedOrphanVisitsCount },
-        }),
-        createNewVisits([
-          fromPartial({ visit: {} }),
-          fromPartial({ visit: {} }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }) }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }) }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }) }),
-        ]),
-      );
+    ])(
+      'returns updated amounts on CREATE_VISITS',
+      (providedOrphanVisitsCount, expectedOrphanVisitsCount) => {
+        const { nonOrphanVisits, orphanVisits } = reducer(
+          state({
+            nonOrphanVisits: { total: 100 },
+            orphanVisits: { total: providedOrphanVisitsCount },
+          }),
+          createNewVisits([
+            fromPartial({ visit: {} }),
+            fromPartial({ visit: {} }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }),
+            }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }),
+            }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }),
+            }),
+          ])
+        );
 
-      expect(nonOrphanVisits.total).toEqual(102);
-      expect(orphanVisits.total).toEqual(expectedOrphanVisitsCount);
-    });
+        expect(nonOrphanVisits.total).toEqual(102);
+        expect(orphanVisits.total).toEqual(expectedOrphanVisitsCount);
+      }
+    );
 
     it.each([
       [
@@ -97,30 +118,42 @@ describe('visitsOverviewReducer', () => {
         { total: 103, nonBots: 57 } satisfies PartialVisitsSummary,
         { total: 203, nonBots: 101 } satisfies PartialVisitsSummary,
       ],
-    ])('takes bots and non-bots into consideration when creating visits', (
-      initialNonOrphanVisits,
-      initialOrphanVisits,
-      expectedNonOrphanVisits,
-      expectedOrphanVisits,
-    ) => {
-      const { nonOrphanVisits, orphanVisits } = reducer(
-        state({
-          nonOrphanVisits: { total: 100, ...initialNonOrphanVisits },
-          orphanVisits: { total: 200, ...initialOrphanVisits },
-        }),
-        createNewVisits([
-          fromPartial({ visit: {} }),
-          fromPartial({ visit: { potentialBot: true } }),
-          fromPartial({ visit: { potentialBot: true } }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }) }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }) }),
-          fromPartial({ visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url', potentialBot: true }) }),
-        ]),
-      );
+    ])(
+      'takes bots and non-bots into consideration when creating visits',
+      (
+        initialNonOrphanVisits,
+        initialOrphanVisits,
+        expectedNonOrphanVisits,
+        expectedOrphanVisits
+      ) => {
+        const { nonOrphanVisits, orphanVisits } = reducer(
+          state({
+            nonOrphanVisits: { total: 100, ...initialNonOrphanVisits },
+            orphanVisits: { total: 200, ...initialOrphanVisits },
+          }),
+          createNewVisits([
+            fromPartial({ visit: {} }),
+            fromPartial({ visit: { potentialBot: true } }),
+            fromPartial({ visit: { potentialBot: true } }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }),
+            }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({ type: 'base_url' }),
+            }),
+            fromPartial({
+              visit: fromPartial<ShlinkOrphanVisit>({
+                type: 'base_url',
+                potentialBot: true,
+              }),
+            }),
+          ])
+        );
 
-      expect(nonOrphanVisits).toEqual(expectedNonOrphanVisits);
-      expect(orphanVisits).toEqual(expectedOrphanVisits);
-    });
+        expect(nonOrphanVisits).toEqual(expectedNonOrphanVisits);
+        expect(orphanVisits).toEqual(expectedOrphanVisits);
+      }
+    );
   });
 
   describe('loadVisitsOverview', () => {
@@ -130,7 +163,10 @@ describe('visitsOverviewReducer', () => {
     it.each([
       [
         // Shlink <3.5.0
-        { visitsCount: 50, orphanVisitsCount: 20 } satisfies ShlinkVisitsOverview,
+        {
+          visitsCount: 50,
+          orphanVisitsCount: 20,
+        } satisfies ShlinkVisitsOverview,
         {
           nonOrphanVisits: { total: 50, nonBots: undefined, bots: undefined },
           orphanVisits: { total: 20, nonBots: undefined, bots: undefined },
@@ -149,15 +185,22 @@ describe('visitsOverviewReducer', () => {
           orphanVisits: { total: 50, nonBots: 20, bots: 30 },
         },
       ],
-    ])('dispatches start and success when promise is resolved', async (serverResult, dispatchedPayload) => {
-      const resolvedOverview = fromPartial<ShlinkVisitsOverview>(serverResult);
-      getVisitsOverview.mockResolvedValue(resolvedOverview);
+    ])(
+      'dispatches start and success when promise is resolved',
+      async (serverResult, dispatchedPayload) => {
+        const resolvedOverview =
+          fromPartial<ShlinkVisitsOverview>(serverResult);
+        getVisitsOverview.mockResolvedValue(resolvedOverview);
 
-      await loadVisitsOverview()(dispatchMock, getState, {});
+        await loadVisitsOverview()(dispatchMock, getState, {});
 
-      expect(dispatchMock).toHaveBeenCalledTimes(2);
-      expect(dispatchMock).toHaveBeenNthCalledWith(2, expect.objectContaining({ payload: dispatchedPayload }));
-      expect(getVisitsOverview).toHaveBeenCalledOnce();
-    });
+        expect(dispatchMock).toHaveBeenCalledTimes(2);
+        expect(dispatchMock).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({ payload: dispatchedPayload })
+        );
+        expect(getVisitsOverview).toHaveBeenCalledOnce();
+      }
+    );
   });
 });

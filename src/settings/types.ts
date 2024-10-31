@@ -1,6 +1,14 @@
 import type { Order, Theme } from '@shlinkio/shlink-frontend-kit';
 
-export type DateInterval = 'today' | 'yesterday' | 'last7Days' | 'last30Days' | 'last90Days' | 'last180Days' | 'last365Days' | 'all';
+export type DateInterval =
+  | 'today'
+  | 'yesterday'
+  | 'last7Days'
+  | 'last30Days'
+  | 'last90Days'
+  | 'last180Days'
+  | 'last365Days'
+  | 'all';
 
 /**
  * Important! When adding new props in the main Settings interface or any of the nested props, they have to be set as
@@ -33,7 +41,9 @@ export type TagsSettings = {
 };
 
 export type ShortUrlsListSettings = {
-  defaultOrdering?: Order<'dateCreated' | 'shortCode' | 'longUrl' | 'title' | 'visits'>;
+  defaultOrdering?: Order<
+    'dateCreated' | 'shortCode' | 'longUrl' | 'title' | 'visits'
+  >;
   confirmDeletions?: boolean;
 };
 

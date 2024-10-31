@@ -1,5 +1,8 @@
 import { mergeDeepRight } from '@shlinkio/data-manipulation';
-import { stringifyQueryParams, useParsedQuery } from '@shlinkio/shlink-frontend-kit';
+import {
+  stringifyQueryParams,
+  useParsedQuery,
+} from '@shlinkio/shlink-frontend-kit';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ShlinkOrphanVisitType } from '../../api-contract';
@@ -34,7 +37,10 @@ type UpdateQuery = (extra: DeepPartial<VisitsQuery>) => void;
  * "beginning of time" and "end of time" respectively.
  * When the keys are not present, callers may decide to fall back to a default value.
  */
-const dateFromRangeToQuery = (dateName: keyof DateRange, dateRange?: DateRange): string | undefined => {
+const dateFromRangeToQuery = (
+  dateName: keyof DateRange,
+  dateRange?: DateRange
+): string | undefined => {
   if (!dateRange || !(dateName in dateRange)) {
     return undefined;
   }
@@ -44,35 +50,65 @@ const dateFromRangeToQuery = (dateName: keyof DateRange, dateRange?: DateRange):
 export const useVisitsQuery = (): [VisitsQuery, UpdateQuery] => {
   const navigate = useNavigate();
   const rawQuery = useParsedQuery<VisitsRawQuery>();
-  const { startDate, endDate, orphanVisitsType, excludeBots, loadPrevInterval, ...rest } = rawQuery;
+  const {
+    startDate,
+    endDate,
+    orphanVisitsType,
+    excludeBots,
+    loadPrevInterval,
+    ...rest
+  } = rawQuery;
 
   const query = useMemo(
     (): VisitsQuery => ({
-      dateRange: startDate != null || endDate != null ? datesToDateRange(startDate, endDate) : undefined,
+      dateRange:
+        startDate != null || endDate != null
+          ? datesToDateRange(startDate, endDate)
+          : undefined,
       visitsFilter: {
         orphanVisitsType,
-        excludeBots: excludeBots !== undefined ? excludeBots === 'true' : undefined,
+        excludeBots:
+          excludeBots !== undefined ? excludeBots === 'true' : undefined,
       },
-      loadPrevInterval: loadPrevInterval !== undefined ? loadPrevInterval === 'true' : undefined,
+      loadPrevInterval:
+        loadPrevInterval !== undefined
+          ? loadPrevInterval === 'true'
+          : undefined,
     }),
-    [endDate, excludeBots, loadPrevInterval, orphanVisitsType, startDate],
+    [endDate, excludeBots, loadPrevInterval, orphanVisitsType, startDate]
   );
-  const updateQuery = useCallback((extra: DeepPartial<VisitsQuery>) => {
-    const { dateRange, visitsFilter = {}, loadPrevInterval: newLoadPrevInterval } = mergeDeepRight(query, extra);
-    const { excludeBots: newExcludeBots, orphanVisitsType: newOrphanVisitsType } = visitsFilter;
-    const newQuery: VisitsRawQuery = {
-      ...rest, // Merge with rest of existing query so that unknown params are preserved
-      startDate: dateFromRangeToQuery('startDate', dateRange),
-      endDate: dateFromRangeToQuery('endDate', dateRange),
-      excludeBots: newExcludeBots === undefined ? undefined : parseBooleanToString(newExcludeBots),
-      orphanVisitsType: newOrphanVisitsType,
-      loadPrevInterval: newLoadPrevInterval === undefined ? undefined : parseBooleanToString(newLoadPrevInterval),
-    };
-    const stringifiedQuery = stringifyQueryParams(newQuery);
-    const queryString = !stringifiedQuery ? '' : `?${stringifiedQuery}`;
+  const updateQuery = useCallback(
+    (extra: DeepPartial<VisitsQuery>) => {
+      const {
+        dateRange,
+        visitsFilter = {},
+        loadPrevInterval: newLoadPrevInterval,
+      } = mergeDeepRight(query, extra);
+      const {
+        excludeBots: newExcludeBots,
+        orphanVisitsType: newOrphanVisitsType,
+      } = visitsFilter;
+      const newQuery: VisitsRawQuery = {
+        ...rest, // Merge with rest of existing query so that unknown params are preserved
+        startDate: dateFromRangeToQuery('startDate', dateRange),
+        endDate: dateFromRangeToQuery('endDate', dateRange),
+        excludeBots:
+          newExcludeBots === undefined
+            ? undefined
+            : parseBooleanToString(newExcludeBots),
+        orphanVisitsType: newOrphanVisitsType,
+        loadPrevInterval:
+          newLoadPrevInterval === undefined
+            ? undefined
+            : parseBooleanToString(newLoadPrevInterval),
+      };
+      const stringifiedQuery = stringifyQueryParams(newQuery);
+      const queryString = !stringifiedQuery ? '' : `?${stringifiedQuery}`;
 
-    navigate(queryString, { replace: true, relative: 'route' });
-  }, [query, navigate, rest]);
+      navigate(queryString, { replace: true, relative: 'route' });
+    },
+    [query, navigate, rest]
+  );
 
   return [query, updateQuery];
 };

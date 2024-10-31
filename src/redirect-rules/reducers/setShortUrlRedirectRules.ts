@@ -1,5 +1,9 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { ProblemDetailsError, ShlinkApiClient, ShlinkSetRedirectRulesData } from '../../api-contract';
+import type {
+  ProblemDetailsError,
+  ShlinkApiClient,
+  ShlinkSetRedirectRulesData,
+} from '../../api-contract';
 import { parseApiError } from '../../api-contract/utils';
 import type { ShortUrlIdentifier } from '../../short-urls/data';
 import { createAsyncThunk } from '../../utils/redux';
@@ -24,16 +28,23 @@ export type SetShortUrlRedirectRulesInfo = {
   data: ShlinkSetRedirectRulesData;
 };
 
-export const setShortUrlRedirectRules = (apiClientFactory: () => ShlinkApiClient) => createAsyncThunk(
-  `${REDUCER_PREFIX}/setShortUrlRedirectRules`,
-  ({ shortUrl, data }: SetShortUrlRedirectRulesInfo) => {
-    const { shortCode, domain } = shortUrl;
-    return apiClientFactory().setShortUrlRedirectRules(shortCode, domain, data);
-  },
-);
+export const setShortUrlRedirectRules = (
+  apiClientFactory: () => ShlinkApiClient
+) =>
+  createAsyncThunk(
+    `${REDUCER_PREFIX}/setShortUrlRedirectRules`,
+    ({ shortUrl, data }: SetShortUrlRedirectRulesInfo) => {
+      const { shortCode, domain } = shortUrl;
+      return apiClientFactory().setShortUrlRedirectRules(
+        shortCode,
+        domain,
+        data
+      );
+    }
+  );
 
 export const setShortUrlRedirectRulesReducerCreator = (
-  setShortUrlRedirectRulesThunk: ReturnType<typeof setShortUrlRedirectRules>,
+  setShortUrlRedirectRulesThunk: ReturnType<typeof setShortUrlRedirectRules>
 ) => {
   const { reducer, actions } = createSlice({
     name: REDUCER_PREFIX,
@@ -42,11 +53,25 @@ export const setShortUrlRedirectRulesReducerCreator = (
       resetSetRules: () => initialState,
     },
     extraReducers: (builder) => {
-      builder.addCase(setShortUrlRedirectRulesThunk.pending, () => ({ saving: true, saved: false, error: false }));
-      builder.addCase(setShortUrlRedirectRulesThunk.rejected, (_, { error }) => (
-        { saving: false, saved: false, error: true, errorData: parseApiError(error) }
-      ));
-      builder.addCase(setShortUrlRedirectRulesThunk.fulfilled, () => ({ saving: false, error: false, saved: true }));
+      builder.addCase(setShortUrlRedirectRulesThunk.pending, () => ({
+        saving: true,
+        saved: false,
+        error: false,
+      }));
+      builder.addCase(
+        setShortUrlRedirectRulesThunk.rejected,
+        (_, { error }) => ({
+          saving: false,
+          saved: false,
+          error: true,
+          errorData: parseApiError(error),
+        })
+      );
+      builder.addCase(setShortUrlRedirectRulesThunk.fulfilled, () => ({
+        saving: false,
+        error: false,
+        saved: true,
+      }));
     },
   });
 

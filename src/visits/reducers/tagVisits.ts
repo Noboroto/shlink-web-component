@@ -1,7 +1,11 @@
 import type { ShlinkVisitsParams } from '@shlinkio/shlink-js-sdk/api-contract';
 import type { ShlinkApiClient } from '../../api-contract';
 import { filterCreatedVisitsByTag } from '../helpers';
-import { createVisitsAsyncThunk, createVisitsReducer, lastVisitLoaderForLoader } from './common';
+import {
+  createVisitsAsyncThunk,
+  createVisitsReducer,
+  lastVisitLoaderForLoader,
+} from './common';
 import type { LoadVisits, VisitsInfo } from './types';
 
 const REDUCER_PREFIX = 'shlink/tagVisits';
@@ -23,28 +27,33 @@ const initialState: TagVisits = {
 
 export type LoadTagVisits = LoadVisits & WithTag;
 
-export const getTagVisits = (apiClientFactory: () => ShlinkApiClient) => createVisitsAsyncThunk({
-  typePrefix: `${REDUCER_PREFIX}/getTagVisits`,
-  createLoaders: ({ tag, options }: LoadTagVisits) => {
-    const apiClient = apiClientFactory();
-    const { doIntervalFallback = false } = options;
+export const getTagVisits = (apiClientFactory: () => ShlinkApiClient) =>
+  createVisitsAsyncThunk({
+    typePrefix: `${REDUCER_PREFIX}/getTagVisits`,
+    createLoaders: ({ tag, options }: LoadTagVisits) => {
+      const apiClient = apiClientFactory();
+      const { doIntervalFallback = false } = options;
 
-    const visitsLoader = (query: ShlinkVisitsParams) => apiClient.getTagVisits(tag, query);
-    const lastVisitLoader = lastVisitLoaderForLoader(doIntervalFallback, async (q) => apiClient.getTagVisits(tag, q));
+      const visitsLoader = (query: ShlinkVisitsParams) =>
+        apiClient.getTagVisits(tag, query);
+      const lastVisitLoader = lastVisitLoaderForLoader(
+        doIntervalFallback,
+        async (q) => apiClient.getTagVisits(tag, q)
+      );
 
-    return { visitsLoader, lastVisitLoader };
-  },
-  shouldCancel: (getState) => getState().tagVisits.cancelLoad,
-});
+      return { visitsLoader, lastVisitLoader };
+    },
+    shouldCancel: (getState) => getState().tagVisits.cancelLoad,
+  });
 
-export const tagVisitsReducerCreator = (asyncThunkCreator: ReturnType<typeof getTagVisits>) => createVisitsReducer({
-  name: REDUCER_PREFIX,
-  initialState,
-  // @ts-expect-error TODO Fix type inference
-  asyncThunkCreator,
-  filterCreatedVisits: ({ tag, params }: TagVisits, createdVisits) => filterCreatedVisitsByTag(
-    createdVisits,
-    tag,
-    params?.dateRange,
-  ),
-});
+export const tagVisitsReducerCreator = (
+  asyncThunkCreator: ReturnType<typeof getTagVisits>
+) =>
+  createVisitsReducer({
+    name: REDUCER_PREFIX,
+    initialState,
+    // @ts-expect-error TODO Fix type inference
+    asyncThunkCreator,
+    filterCreatedVisits: ({ tag, params }: TagVisits, createdVisits) =>
+      filterCreatedVisitsByTag(createdVisits, tag, params?.dateRange),
+  });

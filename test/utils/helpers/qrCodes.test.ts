@@ -5,7 +5,12 @@ describe('qrCodes', () => {
     it.each([
       [
         'bar.io',
-        { size: 870, format: 'svg' as const, errorCorrection: 'L' as const, margin: 0 },
+        {
+          size: 870,
+          format: 'svg' as const,
+          errorCorrection: 'L' as const,
+          margin: 0,
+        },
         'bar.io/qr-code?size=870&format=svg&errorCorrection=L&margin=0',
       ],
       [
@@ -15,7 +20,12 @@ describe('qrCodes', () => {
       ],
       [
         'shlink.io',
-        { size: 456, format: 'png' as const, errorCorrection: 'L' as const, margin: 10 },
+        {
+          size: 456,
+          format: 'png' as const,
+          errorCorrection: 'L' as const,
+          margin: 10,
+        },
         'shlink.io/qr-code?size=456&format=png&errorCorrection=L&margin=10',
       ],
       [
@@ -25,7 +35,12 @@ describe('qrCodes', () => {
       ],
       [
         'shlink.io',
-        { size: 999, format: 'png' as const, errorCorrection: 'Q' as const, margin: 20 },
+        {
+          size: 999,
+          format: 'png' as const,
+          errorCorrection: 'Q' as const,
+          margin: 20,
+        },
         'shlink.io/qr-code?size=999&format=png&errorCorrection=Q&margin=20',
       ],
       [
@@ -33,8 +48,11 @@ describe('qrCodes', () => {
         { color: '#ff0000', bgColor: '001122' },
         'shlink.io/qr-code?color=ff0000&bgColor=001122',
       ],
-    ])('builds expected URL based in params', (shortUrl, options, expectedUrl) => {
-      expect(buildQrCodeUrl(shortUrl, options)).toEqual(expectedUrl);
-    });
+    ])(
+      'builds expected URL based in params',
+      (shortUrl, options, expectedUrl) => {
+        expect(buildQrCodeUrl(shortUrl, options)).toEqual(expectedUrl);
+      }
+    );
   });
 });

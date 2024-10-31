@@ -20,22 +20,37 @@ const initialState: TagDeletion = {
 
 export const tagDeleted = createAction<string>(`${REDUCER_PREFIX}/tagDeleted`);
 
-export const tagDeleteReducerCreator = (apiClientFactory: () => ShlinkApiClient) => {
-  const deleteTag = createAsyncThunk(`${REDUCER_PREFIX}/deleteTag`, async (tag: string): Promise<void> => {
-    await apiClientFactory().deleteTags([tag]);
-  });
+export const tagDeleteReducerCreator = (
+  apiClientFactory: () => ShlinkApiClient
+) => {
+  const deleteTag = createAsyncThunk(
+    `${REDUCER_PREFIX}/deleteTag`,
+    async (tag: string): Promise<void> => {
+      await apiClientFactory().deleteTags([tag]);
+    }
+  );
 
   const { reducer } = createSlice({
     name: REDUCER_PREFIX,
     initialState,
     reducers: {},
     extraReducers: (builder) => {
-      builder.addCase(deleteTag.pending, () => ({ deleting: true, deleted: false, error: false }));
-      builder.addCase(
-        deleteTag.rejected,
-        (_, { error }) => ({ deleting: false, deleted: false, error: true, errorData: parseApiError(error) }),
-      );
-      builder.addCase(deleteTag.fulfilled, () => ({ deleting: false, deleted: true, error: false }));
+      builder.addCase(deleteTag.pending, () => ({
+        deleting: true,
+        deleted: false,
+        error: false,
+      }));
+      builder.addCase(deleteTag.rejected, (_, { error }) => ({
+        deleting: false,
+        deleted: false,
+        error: true,
+        errorData: parseApiError(error),
+      }));
+      builder.addCase(deleteTag.fulfilled, () => ({
+        deleting: false,
+        deleted: true,
+        error: false,
+      }));
     },
   });
 

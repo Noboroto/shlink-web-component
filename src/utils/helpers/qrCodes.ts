@@ -13,11 +13,19 @@ export type QrCodeOptions = {
   bgColor?: string;
 };
 
-const normalizeColor = (color?: string) => color && color.startsWith('#') ? color.substring(1) : color;
+const normalizeColor = (color?: string) =>
+  color && color.startsWith('#') ? color.substring(1) : color;
 
-export const buildQrCodeUrl = (shortUrl: string, { color, bgColor, ...rest }: QrCodeOptions): string => {
+export const buildQrCodeUrl = (
+  shortUrl: string,
+  { color, bgColor, ...rest }: QrCodeOptions
+): string => {
   const baseUrl = `${shortUrl}/qr-code`;
-  const query = stringifyQueryParams({ ...rest, color: normalizeColor(color), bgColor: normalizeColor(bgColor) });
+  const query = stringifyQueryParams({
+    ...rest,
+    color: normalizeColor(color),
+    bgColor: normalizeColor(bgColor),
+  });
 
   return `${baseUrl}${!query ? '' : `?${query}`}`;
 };

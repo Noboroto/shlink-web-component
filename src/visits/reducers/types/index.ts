@@ -25,12 +25,13 @@ export type VisitsLoadingInfo = {
   progress: number | null;
 };
 
-export type VisitsInfo = VisitsLoadingInfo & VisitsLoaded & {
-  fallbackInterval?: DateInterval;
-};
+export type VisitsInfo = VisitsLoadingInfo &
+  VisitsLoaded & {
+    fallbackInterval?: DateInterval;
+  };
 
 export type VisitsDeletion = {
   deleting: boolean;
-  error: boolean,
+  error: boolean;
   errorData?: ProblemDetailsError;
 };

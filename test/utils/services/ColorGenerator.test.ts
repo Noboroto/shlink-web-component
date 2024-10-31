@@ -25,7 +25,9 @@ describe('ColorGenerator', () => {
   });
 
   it('generates a random color when none is available for requested key', () => {
-    expect(colorGenerator.getColorForKey('bar')).toEqual(expect.stringMatching(/^#(?:[0-9a-fA-F]{6})$/));
+    expect(colorGenerator.getColorForKey('bar')).toEqual(
+      expect.stringMatching(/^#(?:[0-9a-fA-F]{6})$/)
+    );
     expect(storageMock.storeTagColors).toHaveBeenCalledOnce();
     expect(storageMock.getTagColors).toHaveBeenCalledOnce();
   });
@@ -52,11 +54,14 @@ describe('ColorGenerator', () => {
       ['#F7BE05', '#222'],
       ['#5A02D8', '#fff'],
       ['#202786', '#fff'],
-    ])('returns that the color for a key is light based on the color assigned to that key', (background, textColor) => {
-      colorGenerator.setColorForKey('foo', background);
+    ])(
+      'returns that the color for a key is light based on the color assigned to that key',
+      (background, textColor) => {
+        colorGenerator.setColorForKey('foo', background);
 
-      expect(textColor).toEqual(colorGenerator.stylesForKey('foo').color);
-      expect(textColor).toEqual(colorGenerator.stylesForKey('foo').color); // To cover when color is already calculated
-    });
+        expect(textColor).toEqual(colorGenerator.stylesForKey('foo').color);
+        expect(textColor).toEqual(colorGenerator.stylesForKey('foo').color); // To cover when color is already calculated
+      }
+    );
   });
 });

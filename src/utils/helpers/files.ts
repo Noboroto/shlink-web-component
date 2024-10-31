@@ -1,4 +1,8 @@
-export const saveUrl = ({ document }: Window, url: string, filename: string) => {
+export const saveUrl = (
+  { document }: Window,
+  url: string,
+  filename: string
+) => {
   const link = document.createElement('a');
 
   link.setAttribute('href', url);

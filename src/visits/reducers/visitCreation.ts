@@ -3,5 +3,5 @@ import type { CreateVisit } from '../types';
 
 export const createNewVisits = createAction(
   'shlink/visitCreation/createNewVisits',
-  (createdVisits: CreateVisit[]) => ({ payload: { createdVisits } }),
+  (createdVisits: CreateVisit[]) => ({ payload: { createdVisits } })
 );

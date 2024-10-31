@@ -7,30 +7,53 @@ import {
 
 describe('shortUrlsVisitsDeletionReducer', () => {
   const deleteShortUrlVisitsCall = vi.fn();
-  const buildShlinkApiClientMock = () => fromPartial<ShlinkApiClient>({
-    deleteShortUrlVisits: deleteShortUrlVisitsCall,
-  });
-  const deleteShortUrlVisits = deleteShortUrlVisitsCreator(buildShlinkApiClientMock);
-  const { reducer } = shortUrlVisitsDeletionReducerCreator(deleteShortUrlVisits);
+  const buildShlinkApiClientMock = () =>
+    fromPartial<ShlinkApiClient>({
+      deleteShortUrlVisits: deleteShortUrlVisitsCall,
+    });
+  const deleteShortUrlVisits = deleteShortUrlVisitsCreator(
+    buildShlinkApiClientMock
+  );
+  const { reducer } =
+    shortUrlVisitsDeletionReducerCreator(deleteShortUrlVisits);
 
   describe('reducer', () => {
     it('returns deleting for pending action', () => {
-      const result = reducer(fromPartial({}), deleteShortUrlVisits.pending('', fromPartial({})));
-      expect(result).toEqual(expect.objectContaining({ deleting: true, error: false }));
+      const result = reducer(
+        fromPartial({}),
+        deleteShortUrlVisits.pending('', fromPartial({}))
+      );
+      expect(result).toEqual(
+        expect.objectContaining({ deleting: true, error: false })
+      );
     });
 
     it('returns error for rejected action', () => {
       const error = { type: 'NOT_FOUND', status: 404 } as unknown as Error;
-      const result = reducer(fromPartial({}), deleteShortUrlVisits.rejected(error, '', fromPartial({})));
+      const result = reducer(
+        fromPartial({}),
+        deleteShortUrlVisits.rejected(error, '', fromPartial({}))
+      );
 
-      expect(result).toEqual(expect.objectContaining({ deleting: false, error: true }));
+      expect(result).toEqual(
+        expect.objectContaining({ deleting: false, error: true })
+      );
     });
 
     it('returns success on fulfilled rejected', () => {
-      const shortUrl = { shortCode: 'shortCode', domain: 'domain', deletedVisits: 10 };
-      const result = reducer(fromPartial({}), deleteShortUrlVisits.fulfilled(shortUrl, '', fromPartial({})));
+      const shortUrl = {
+        shortCode: 'shortCode',
+        domain: 'domain',
+        deletedVisits: 10,
+      };
+      const result = reducer(
+        fromPartial({}),
+        deleteShortUrlVisits.fulfilled(shortUrl, '', fromPartial({}))
+      );
 
-      expect(result).toEqual(expect.objectContaining({ deleting: false, error: false, ...shortUrl }));
+      expect(result).toEqual(
+        expect.objectContaining({ deleting: false, error: false, ...shortUrl })
+      );
     });
   });
 
@@ -43,9 +66,11 @@ describe('shortUrlsVisitsDeletionReducer', () => {
 
       expect(deleteShortUrlVisitsCall).toHaveBeenCalledOnce();
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { shortCode: 'foo', deletedVisits: 50 },
-      }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: { shortCode: 'foo', deletedVisits: 50 },
+        })
+      );
     });
   });
 });

@@ -8,10 +8,13 @@ import { useNavigate } from 'react-router-dom';
 import { useSwipeable as useReactSwipeable } from 'react-swipeable';
 import type { MediaMatcher } from '../types';
 
-export const useSwipeable = (showSidebar: () => void, hideSidebar: () => void) => {
+export const useSwipeable = (
+  showSidebar: () => void,
+  hideSidebar: () => void
+) => {
   const swipeMenuIfNoModalExists = (callback: () => void) => (e: any) => {
     const swippedOnVisitsTable = (e.event.composedPath() as HTMLElement[]).some(
-      ({ classList }) => classList?.contains('visits-table'),
+      ({ classList }) => classList?.contains('visits-table')
     );
 
     if (swippedOnVisitsTable || document.querySelector('.modal')) {
@@ -28,16 +31,26 @@ export const useSwipeable = (showSidebar: () => void, hideSidebar: () => void) =
   });
 };
 
-export const useQueryState = <T>(paramName: string, initialState: T): [T, (newValue: T) => void] => {
+export const useQueryState = <T>(
+  paramName: string,
+  initialState: T
+): [T, (newValue: T) => void] => {
   const [value, setValue] = useState(initialState);
-  const setValueWithLocation = useCallback((valueToSet: T) => {
-    const { location, history } = window;
-    const query = parseQueryString<any>(location.search);
+  const setValueWithLocation = useCallback(
+    (valueToSet: T) => {
+      const { location, history } = window;
+      const query = parseQueryString<any>(location.search);
 
-    query[paramName] = valueToSet;
-    history.pushState(null, '', `${location.pathname}?${stringifyQueryParams(query)}`);
-    setValue(valueToSet);
-  }, [paramName]);
+      query[paramName] = valueToSet;
+      history.pushState(
+        null,
+        '',
+        `${location.pathname}?${stringifyQueryParams(query)}`
+      );
+      setValue(valueToSet);
+    },
+    [paramName]
+  );
 
   return [value, setValueWithLocation];
 };
@@ -48,7 +61,10 @@ export const useQueryState = <T>(paramName: string, initialState: T): [T, (newVa
  */
 export const useArrayQueryParam = (name: string): string[] => {
   const query = useParsedQuery<Record<string, string | undefined>>();
-  return useMemo(() => query[name]?.split(',').filter(Boolean) ?? [], [name, query]);
+  return useMemo(
+    () => query[name]?.split(',').filter(Boolean) ?? [],
+    [name, query]
+  );
 };
 
 export const useGoBack = () => {
@@ -56,12 +72,16 @@ export const useGoBack = () => {
   return useCallback(() => navigate(-1), [navigate]);
 };
 
-export const useMaxResolution = (maxResolution: number, matchMedia: MediaMatcher) => {
+export const useMaxResolution = (
+  maxResolution: number,
+  matchMedia: MediaMatcher
+) => {
   const matchResolution = useCallback(
     () => matchMedia(`(max-width: ${maxResolution}px)`).matches,
-    [matchMedia, maxResolution],
+    [matchMedia, maxResolution]
   );
-  const [doesMatchResolution, setResolutionIsMatched] = useState(matchResolution());
+  const [doesMatchResolution, setResolutionIsMatched] =
+    useState(matchResolution());
 
   useEffect(() => {
     const listener = () => setResolutionIsMatched(matchResolution());
@@ -72,7 +92,11 @@ export const useMaxResolution = (maxResolution: number, matchMedia: MediaMatcher
   return doesMatchResolution;
 };
 
-export const useKeyDown = (key: string, callback: () => void, enabled: boolean) => {
+export const useKeyDown = (
+  key: string,
+  callback: () => void,
+  enabled: boolean
+) => {
   useEffect(() => {
     if (!enabled) {
       return () => {};

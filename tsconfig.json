@@ -17,9 +17,6 @@
     "skipLibCheck": true,
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx"
-  ],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "vite.config.ts"]
 }

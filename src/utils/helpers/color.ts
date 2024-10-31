@@ -14,11 +14,15 @@ export function buildRandomColor(): string {
  *
  * HSP by Darel Rex Finley https://alienryderflex.com/hsp.html
  */
-function perceivedLightness (r: number, g: number, b: number): number {
-  return Math.round(Math.sqrt(0.299 * r ** 2 + 0.587 * g ** 2 + 0.114 * b ** 2));
+function perceivedLightness(r: number, g: number, b: number): number {
+  return Math.round(
+    Math.sqrt(0.299 * r ** 2 + 0.587 * g ** 2 + 0.114 * b ** 2)
+  );
 }
 
 export function isLightColor(colorHex: string): boolean {
-  const [r, g, b] = (colorHex.match(/../g) ?? []).map((hex) => parseInt(hex, 16) || 0);
+  const [r, g, b] = (colorHex.match(/../g) ?? []).map(
+    (hex) => parseInt(hex, 16) || 0
+  );
   return perceivedLightness(r, g, b) >= LIGHTNESS_BREAKPOINT;
 }

@@ -4,8 +4,16 @@ import { OverviewFactory } from '../Overview';
 
 export function provideServices(bottle: Bottle, connect: ConnectDecorator) {
   bottle.factory('Overview', OverviewFactory);
-  bottle.decorator('Overview', connect(
-    ['shortUrlsList', 'tagsList', 'mercureInfo', 'visitsOverview'],
-    ['listShortUrls', 'createNewVisits', 'loadMercureInfo', 'loadVisitsOverview'],
-  ));
+  bottle.decorator(
+    'Overview',
+    connect(
+      ['shortUrlsList', 'tagsList', 'mercureInfo', 'visitsOverview'],
+      [
+        'listShortUrls',
+        'createNewVisits',
+        'loadMercureInfo',
+        'loadVisitsOverview',
+      ]
+    )
+  );
 }

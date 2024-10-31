@@ -9,7 +9,9 @@ import type { LoadVisitsForComparison, VisitsComparisonInfo } from './types';
 
 const REDUCER_PREFIX = 'shlink/shortUrlVisitsComparison';
 
-export type LoadShortUrlVisitsForComparison = LoadVisitsForComparison & { shortUrls: ShortUrlIdentifier[]; };
+export type LoadShortUrlVisitsForComparison = LoadVisitsForComparison & {
+  shortUrls: ShortUrlIdentifier[];
+};
 
 const initialState: VisitsComparisonInfo = {
   visitsGroups: {},
@@ -19,17 +21,20 @@ const initialState: VisitsComparisonInfo = {
   progress: null,
 };
 
-export const getShortUrlVisitsForComparison = (apiClientFactory: () => ShlinkApiClient) =>
+export const getShortUrlVisitsForComparison = (
+  apiClientFactory: () => ShlinkApiClient
+) =>
   createVisitsComparisonAsyncThunk({
     typePrefix: `${REDUCER_PREFIX}/getShortUrlVisitsForComparison`,
     createLoaders: ({ shortUrls }: LoadShortUrlVisitsForComparison) => {
       const apiClient = apiClientFactory();
       const loaderEntries = shortUrls.map((identifier) => [
         shortUrlToQuery(identifier),
-        (query: ShlinkVisitsParams) => apiClient.getShortUrlVisits(
-          identifier.shortCode,
-          { ...query, domain: identifier.domain },
-        ),
+        (query: ShlinkVisitsParams) =>
+          apiClient.getShortUrlVisits(identifier.shortCode, {
+            ...query,
+            domain: identifier.domain,
+          }),
       ]);
 
       return Object.fromEntries(loaderEntries);
@@ -38,15 +43,17 @@ export const getShortUrlVisitsForComparison = (apiClientFactory: () => ShlinkApi
   });
 
 export const shortUrlVisitsComparisonReducerCreator = (
-  asyncThunkCreator: ReturnType<typeof getShortUrlVisitsForComparison>,
-) => createVisitsComparisonReducer({
-  name: REDUCER_PREFIX,
-  initialState,
-  // @ts-expect-error TODO Fix type inference
-  asyncThunkCreator,
-  filterCreatedVisitsForGroup: ({ groupKey, params }, createdVisits) => filterCreatedVisitsByShortUrl(
-    createdVisits,
-    queryToShortUrl(groupKey),
-    params?.dateRange,
-  ),
-});
+  asyncThunkCreator: ReturnType<typeof getShortUrlVisitsForComparison>
+) =>
+  createVisitsComparisonReducer({
+    name: REDUCER_PREFIX,
+    initialState,
+    // @ts-expect-error TODO Fix type inference
+    asyncThunkCreator,
+    filterCreatedVisitsForGroup: ({ groupKey, params }, createdVisits) =>
+      filterCreatedVisitsByShortUrl(
+        createdVisits,
+        queryToShortUrl(groupKey),
+        params?.dateRange
+      ),
+  });

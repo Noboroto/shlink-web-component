@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
-import type { ShlinkApiClient, ShlinkRedirectRuleData } from '../../api-contract';
+import type {
+  ShlinkApiClient,
+  ShlinkRedirectRuleData,
+} from '../../api-contract';
 import type { ShortUrlIdentifier } from '../../short-urls/data';
 import { createAsyncThunk } from '../../utils/redux';
 
@@ -17,23 +20,34 @@ const initialState: ShortUrlRedirectRules = {
   error: false,
 };
 
-export const getShortUrlRedirectRules = (apiClientFactory: () => ShlinkApiClient) => createAsyncThunk(
-  `${REDUCER_PREFIX}/getShortUrlRedirectRules`,
-  ({ shortCode, domain }: ShortUrlIdentifier) => apiClientFactory().getShortUrlRedirectRules(shortCode, domain),
-);
+export const getShortUrlRedirectRules = (
+  apiClientFactory: () => ShlinkApiClient
+) =>
+  createAsyncThunk(
+    `${REDUCER_PREFIX}/getShortUrlRedirectRules`,
+    ({ shortCode, domain }: ShortUrlIdentifier) =>
+      apiClientFactory().getShortUrlRedirectRules(shortCode, domain)
+  );
 
 export const shortUrlRedirectRulesReducerCreator = (
-  getShortUrlRedirectRulesThunk: ReturnType<typeof getShortUrlRedirectRules>,
-) => createSlice({
-  name: REDUCER_PREFIX,
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder.addCase(getShortUrlRedirectRulesThunk.pending, () => ({ loading: true, error: false }));
-    builder.addCase(getShortUrlRedirectRulesThunk.rejected, () => ({ loading: false, error: true }));
-    builder.addCase(
-      getShortUrlRedirectRulesThunk.fulfilled,
-      (_, { payload }) => ({ loading: false, error: false, ...payload }),
-    );
-  },
-});
+  getShortUrlRedirectRulesThunk: ReturnType<typeof getShortUrlRedirectRules>
+) =>
+  createSlice({
+    name: REDUCER_PREFIX,
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+      builder.addCase(getShortUrlRedirectRulesThunk.pending, () => ({
+        loading: true,
+        error: false,
+      }));
+      builder.addCase(getShortUrlRedirectRulesThunk.rejected, () => ({
+        loading: false,
+        error: true,
+      }));
+      builder.addCase(
+        getShortUrlRedirectRulesThunk.fulfilled,
+        (_, { payload }) => ({ loading: false, error: false, ...payload })
+      );
+    },
+  });

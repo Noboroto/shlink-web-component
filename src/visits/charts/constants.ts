@@ -14,7 +14,10 @@ const CHART_TOOLTIP_LABEL_STYLES: CSSProperties = {
   fontWeight: 'bold',
 } as const;
 
-export const CHART_TOOLTIP_COMMON_PROPS: Pick<TooltipProps<any, any>, 'contentStyle' | 'labelStyle' | 'itemStyle'> = {
+export const CHART_TOOLTIP_COMMON_PROPS: Pick<
+  TooltipProps<any, any>,
+  'contentStyle' | 'labelStyle' | 'itemStyle'
+> = {
   contentStyle: CHART_TOOLTIP_STYLES,
   labelStyle: CHART_TOOLTIP_LABEL_STYLES,
   itemStyle: { padding: 0 },
@@ -34,8 +37,10 @@ const COLORS = [
   '#463730',
 ] as const;
 
-export const chartColorForIndex = (index: number) => COLORS[index % COLORS.length];
+export const chartColorForIndex = (index: number) =>
+  COLORS[index % COLORS.length];
 
-export const prevColor = () => isDarkThemeEnabled() ? '#46e587' : '#1DAA58';
+export const prevColor = () => (isDarkThemeEnabled() ? '#46e587' : '#1DAA58');
 
-export const prevColorAlpha = () => isDarkThemeEnabled() ? 'rgba(70, 229, 135, 0.4)' : 'rgba(29, 170, 88, 0.4)';
+export const prevColorAlpha = () =>
+  isDarkThemeEnabled() ? 'rgba(70, 229, 135, 0.4)' : 'rgba(29, 170, 88, 0.4)';

@@ -10,31 +10,57 @@ import {
 
 describe('setShortUrlRedirectRulesReducer', () => {
   const setShortUrlRedirectRulesCall = vi.fn();
-  const buildShlinkApiClient = () => fromPartial<ShlinkApiClient>({
-    setShortUrlRedirectRules: setShortUrlRedirectRulesCall,
-  });
-  const setShortUrlRedirectRules = setShortUrlRedirectRulesCreator(buildShlinkApiClient);
-  const { reducer, resetSetRules } = setShortUrlRedirectRulesReducerCreator(setShortUrlRedirectRules);
+  const buildShlinkApiClient = () =>
+    fromPartial<ShlinkApiClient>({
+      setShortUrlRedirectRules: setShortUrlRedirectRulesCall,
+    });
+  const setShortUrlRedirectRules =
+    setShortUrlRedirectRulesCreator(buildShlinkApiClient);
+  const { reducer, resetSetRules } = setShortUrlRedirectRulesReducerCreator(
+    setShortUrlRedirectRules
+  );
 
   describe('reducer', () => {
     it('returns saving on pending', () => {
-      const result = reducer(undefined, setShortUrlRedirectRules.pending('', fromPartial({}), undefined));
+      const result = reducer(
+        undefined,
+        setShortUrlRedirectRules.pending('', fromPartial({}), undefined)
+      );
       expect(result).toEqual({ saving: true, saved: false, error: false });
     });
 
     it('returns error data on rejected', () => {
-      const error = { type: ErrorType.INVALID_SHORTCODE, status: 404 } as unknown as Error;
+      const error = {
+        type: ErrorType.INVALID_SHORTCODE,
+        status: 404,
+      } as unknown as Error;
       const result = reducer(
         undefined,
-        setShortUrlRedirectRules.rejected(error, '', fromPartial({}), undefined, undefined),
+        setShortUrlRedirectRules.rejected(
+          error,
+          '',
+          fromPartial({}),
+          undefined,
+          undefined
+        )
       );
-      expect(result).toEqual({ saving: false, saved: false, error: true, errorData: parseApiError(error) });
+      expect(result).toEqual({
+        saving: false,
+        saved: false,
+        error: true,
+        errorData: parseApiError(error),
+      });
     });
 
     it('returns saved on fulfilled', () => {
       const result = reducer(
         undefined,
-        setShortUrlRedirectRules.fulfilled(fromPartial({}), '', fromPartial({}), undefined),
+        setShortUrlRedirectRules.fulfilled(
+          fromPartial({}),
+          '',
+          fromPartial({}),
+          undefined
+        )
       );
       expect(result).toEqual({ saving: false, saved: true, error: false });
     });
@@ -58,11 +84,16 @@ describe('setShortUrlRedirectRulesReducer', () => {
       ];
 
       setShortUrlRedirectRulesCall.mockResolvedValue(shortUrlRules);
-      await setShortUrlRedirectRules({ shortUrl: fromPartial({}), data: fromPartial({}) })(dispatch, vi.fn(), {});
+      await setShortUrlRedirectRules({
+        shortUrl: fromPartial({}),
+        data: fromPartial({}),
+      })(dispatch, vi.fn(), {});
 
       expect(setShortUrlRedirectRulesCall).toHaveBeenCalledOnce();
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({ payload: shortUrlRules }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({ payload: shortUrlRules })
+      );
     });
   });
 });

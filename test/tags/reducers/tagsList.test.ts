@@ -22,23 +22,29 @@ describe('tagsListReducer', () => {
 
   describe('reducer', () => {
     it('returns loading on LIST_TAGS_START', () => {
-      expect(reducer(undefined, listTags.pending(''))).toEqual(expect.objectContaining({
-        loading: true,
-        error: false,
-      }));
+      expect(reducer(undefined, listTags.pending(''))).toEqual(
+        expect.objectContaining({
+          loading: true,
+          error: false,
+        })
+      );
     });
 
     it('returns error on LIST_TAGS_ERROR', () => {
-      expect(reducer(undefined, listTags.rejected(null, ''))).toEqual(expect.objectContaining({
-        loading: false,
-        error: true,
-      }));
+      expect(reducer(undefined, listTags.rejected(null, ''))).toEqual(
+        expect.objectContaining({
+          loading: false,
+          error: true,
+        })
+      );
     });
 
     it('returns provided tags as filtered and regular tags on LIST_TAGS', () => {
       const tags = ['foo', 'bar', 'baz'];
 
-      expect(reducer(undefined, listTags.fulfilled(fromPartial({ tags }), ''))).toEqual({
+      expect(
+        reducer(undefined, listTags.fulfilled(fromPartial({ tags }), ''))
+      ).toEqual({
         tags,
         filteredTags: tags,
         loading: false,
@@ -51,10 +57,9 @@ describe('tagsListReducer', () => {
       const tag = 'foo';
       const expectedTags = ['bar', 'baz'];
 
-      expect(reducer(
-        state({ tags, filteredTags: tags }),
-        tagDeleted(tag),
-      )).toEqual({
+      expect(
+        reducer(state({ tags, filteredTags: tags }), tagDeleted(tag))
+      ).toEqual({
         tags: expectedTags,
         filteredTags: expectedTags,
       });
@@ -66,19 +71,21 @@ describe('tagsListReducer', () => {
       const newName = 'renamed';
       const expectedTags = ['foo', 'renamed', 'baz'].sort();
 
-      expect(reducer(
-        state({
-          tags,
-          filteredTags: tags,
-          stats: {
-            [oldName]: {
-              shortUrlsCount: 35,
-              visitsCount: 35,
+      expect(
+        reducer(
+          state({
+            tags,
+            filteredTags: tags,
+            stats: {
+              [oldName]: {
+                shortUrlsCount: 35,
+                visitsCount: 35,
+              },
             },
-          },
-        }),
-        tagEdited({ oldName, newName, color: '' }),
-      )).toEqual({
+          }),
+          tagEdited({ oldName, newName, color: '' })
+        )
+      ).toEqual({
         tags: expectedTags,
         filteredTags: expectedTags,
         stats: {
@@ -106,17 +113,34 @@ describe('tagsListReducer', () => {
     });
 
     it.each([
-      [['foo', 'foo3', 'bar3', 'fo'], ['foo', 'bar', 'baz', 'foo2', 'fo', 'foo3', 'bar3']],
-      [['foo', 'bar'], ['foo', 'bar', 'baz', 'foo2', 'fo']],
-      [['new', 'tag'], ['foo', 'bar', 'baz', 'foo2', 'fo', 'new', 'tag']],
-    ])('appends new short URL\'s tags to the list of tags on CREATE_SHORT_URL', (shortUrlTags, expectedTags) => {
-      const tags = ['foo', 'bar', 'baz', 'foo2', 'fo'];
-      const payload = fromPartial<ShlinkShortUrl>({ tags: shortUrlTags });
+      [
+        ['foo', 'foo3', 'bar3', 'fo'],
+        ['foo', 'bar', 'baz', 'foo2', 'fo', 'foo3', 'bar3'],
+      ],
+      [
+        ['foo', 'bar'],
+        ['foo', 'bar', 'baz', 'foo2', 'fo'],
+      ],
+      [
+        ['new', 'tag'],
+        ['foo', 'bar', 'baz', 'foo2', 'fo', 'new', 'tag'],
+      ],
+    ])(
+      "appends new short URL's tags to the list of tags on CREATE_SHORT_URL",
+      (shortUrlTags, expectedTags) => {
+        const tags = ['foo', 'bar', 'baz', 'foo2', 'fo'];
+        const payload = fromPartial<ShlinkShortUrl>({ tags: shortUrlTags });
 
-      expect(reducer(state({ tags }), createShortUrl.fulfilled(payload, '', fromPartial({})))).toEqual({
-        tags: expectedTags,
-      });
-    });
+        expect(
+          reducer(
+            state({ tags }),
+            createShortUrl.fulfilled(payload, '', fromPartial({}))
+          )
+        ).toEqual({
+          tags: expectedTags,
+        });
+      }
+    );
 
     it('increases amounts when visits are created', () => {
       const createdVisits: CreateVisit[] = [
@@ -154,42 +178,45 @@ describe('tagsListReducer', () => {
         },
       });
 
-      expect(reducer(stateBefore, createNewVisits(createdVisits))).toEqual(expect.objectContaining({
-        stats: {
-          foo: {
-            shortUrlsCount: 1,
-            visitsCount: 100 + 2,
-            visitsSummary: {
-              total: 100 + 2,
-              nonBots: 90 + 1,
-              bots: 10 + 1,
+      expect(reducer(stateBefore, createNewVisits(createdVisits))).toEqual(
+        expect.objectContaining({
+          stats: {
+            foo: {
+              shortUrlsCount: 1,
+              visitsCount: 100 + 2,
+              visitsSummary: {
+                total: 100 + 2,
+                nonBots: 90 + 1,
+                bots: 10 + 1,
+              },
+            },
+            bar: {
+              shortUrlsCount: 1,
+              visitsCount: 200 + 3,
+              visitsSummary: {
+                total: 200 + 3,
+                nonBots: 190 + 2,
+                bots: 10 + 1,
+              },
+            },
+            baz: {
+              shortUrlsCount: 1,
+              visitsCount: 150 + 1,
+              visitsSummary: {
+                total: 150 + 1,
+                nonBots: 140,
+                bots: 10 + 1,
+              },
             },
           },
-          bar: {
-            shortUrlsCount: 1,
-            visitsCount: 200 + 3,
-            visitsSummary: {
-              total: 200 + 3,
-              nonBots: 190 + 2,
-              bots: 10 + 1,
-            },
-          },
-          baz: {
-            shortUrlsCount: 1,
-            visitsCount: 150 + 1,
-            visitsSummary: {
-              total: 150 + 1,
-              nonBots: 140,
-              bots: 10 + 1,
-            },
-          },
-        },
-      }));
+        })
+      );
     });
   });
 
   describe('filterTags', () => {
-    it('creates expected action', () => expect(filterTags('foo').payload).toEqual('foo'));
+    it('creates expected action', () =>
+      expect(filterTags('foo').payload).toEqual('foo'));
   });
 
   describe('listTags', () => {
@@ -212,9 +239,11 @@ describe('tagsListReducer', () => {
 
       expect(buildShlinkApiClient).toHaveBeenCalledOnce();
       expect(dispatch).toHaveBeenCalledTimes(2);
-      expect(dispatch).toHaveBeenLastCalledWith(expect.objectContaining({
-        payload: { tags, stats: expectedStats },
-      }));
+      expect(dispatch).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          payload: { tags, stats: expectedStats },
+        })
+      );
     });
   });
 });

@@ -18,31 +18,55 @@ Object.freeze(supportedFeatures);
 
 export type Feature = keyof typeof supportedFeatures;
 
-const isFeatureEnabledForVersion = (feature: Feature, serverVersion: SemVerOrLatest): boolean =>
+const isFeatureEnabledForVersion = (
+  feature: Feature,
+  serverVersion: SemVerOrLatest
+): boolean =>
   // When serverVersion is `latest`, fall back to a very big version number.
   // That will disable features with a maxVersion, and keep enabled those with only a minVersion
-  versionMatch(serverVersion === 'latest' ? '999.99.99' : serverVersion, supportedFeatures[feature]);
+  versionMatch(
+    serverVersion === 'latest' ? '999.99.99' : serverVersion,
+    supportedFeatures[feature]
+  );
 
-const getFeaturesForVersion = (serverVersion: SemVerOrLatest): Record<Feature, boolean> => ({
-  excludeBotsOnShortUrls: isFeatureEnabledForVersion('excludeBotsOnShortUrls', serverVersion),
-  filterDisabledUrls: isFeatureEnabledForVersion('filterDisabledUrls', serverVersion),
+const getFeaturesForVersion = (
+  serverVersion: SemVerOrLatest
+): Record<Feature, boolean> => ({
+  excludeBotsOnShortUrls: isFeatureEnabledForVersion(
+    'excludeBotsOnShortUrls',
+    serverVersion
+  ),
+  filterDisabledUrls: isFeatureEnabledForVersion(
+    'filterDisabledUrls',
+    serverVersion
+  ),
   deviceLongUrls: isFeatureEnabledForVersion('deviceLongUrls', serverVersion),
-  shortUrlVisitsDeletion: isFeatureEnabledForVersion('shortUrlVisitsDeletion', serverVersion),
-  orphanVisitsDeletion: isFeatureEnabledForVersion('orphanVisitsDeletion', serverVersion),
-  shortUrlRedirectRules: isFeatureEnabledForVersion('shortUrlRedirectRules', serverVersion),
+  shortUrlVisitsDeletion: isFeatureEnabledForVersion(
+    'shortUrlVisitsDeletion',
+    serverVersion
+  ),
+  orphanVisitsDeletion: isFeatureEnabledForVersion(
+    'orphanVisitsDeletion',
+    serverVersion
+  ),
+  shortUrlRedirectRules: isFeatureEnabledForVersion(
+    'shortUrlRedirectRules',
+    serverVersion
+  ),
   qrCodeColors: isFeatureEnabledForVersion('qrCodeColors', serverVersion),
   urlValidation: isFeatureEnabledForVersion('urlValidation', serverVersion),
-  ipRedirectCondition: isFeatureEnabledForVersion('ipRedirectCondition', serverVersion),
+  ipRedirectCondition: isFeatureEnabledForVersion(
+    'ipRedirectCondition',
+    serverVersion
+  ),
 });
 
 const FeaturesContext = createContext(getFeaturesForVersion('0.0.0'));
 
 export const FeaturesProvider = FeaturesContext.Provider;
 
-export const useFeatures = (serverVersion: SemVerOrLatest) => useMemo(
-  () => getFeaturesForVersion(serverVersion),
-  [serverVersion],
-);
+export const useFeatures = (serverVersion: SemVerOrLatest) =>
+  useMemo(() => getFeaturesForVersion(serverVersion), [serverVersion]);
 
 export const useFeature = (feature: Feature) => {
   const features = useContext(FeaturesContext);
