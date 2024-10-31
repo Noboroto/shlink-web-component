@@ -1,9 +1,11 @@
-@import './tags/react-tag-autocomplete';
-@import './utils/StickyCardPaginator.scss';
+@use 'tags/react-tag-autocomplete';
+@use 'utils/StickyCardPaginator.scss';
+@use "../node_modules/@shlinkio/shlink-frontend-kit/dist/base";
+
 @import 'leaflet/dist/leaflet.css';
 
 .top-sticky {
   position: sticky;
-  top: $headerHeight;
+  top: base.$headerHeight;
   z-index: 10;
 }

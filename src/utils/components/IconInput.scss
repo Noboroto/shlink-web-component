@@ -1,5 +1,5 @@
-@import '../mixins/vertical-align';
-@import '../../../node_modules/@shlinkio/shlink-frontend-kit/dist/base';
+@use '../mixins/vertical-align';
+@use '../../../node_modules/@shlinkio/shlink-frontend-kit/dist/base';
 
 .icon-input-container {
   position: relative;
@@ -14,7 +14,7 @@
 }
 
 .icon-input-container__icon {
-  @include vertical-align();
+  @include vertical-align.vertical-align();
 
   right: .75rem;
   cursor: pointer;
