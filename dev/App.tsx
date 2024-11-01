@@ -3,7 +3,7 @@ import { FetchHttpClient } from '@shlinkio/shlink-js-sdk/browser';
 import type { FC } from 'react';
 import { useCallback } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { ShlinkWebComponent } from '../src';
 import type { Settings } from '../src/settings';
 import { ShlinkWebSettings } from '../src/settings';
@@ -12,8 +12,10 @@ import type { ServerInfo } from './server-info/useServerInfo';
 import { useServerInfo } from './server-info/useServerInfo';
 import { isServerInfoSet } from './server-info/useServerInfo';
 import { MainHeader } from './common/MainHeader';
+import { fetchServers } from './servers/reducers/remoteServers';
 
 export const App: FC = () => {
+	const [httpClient, setHttpClient] = useState<FetchHttpClient>(new FetchHttpClient());
   const [serverInfo, updateServerInfo] = useServerInfo();
   const [serverVersion, setServerVersion] = useState<SemVer>();
   const onServerInfoChange = useCallback((newServerInfo: ServerInfo) => {
@@ -21,8 +23,20 @@ export const App: FC = () => {
     setServerVersion(undefined);
   }, [updateServerInfo]);
 
+	// Fetch servers when the app starts and update the server info
+	useEffect(() => {
+		fetchServers(httpClient).then((servers) => {
+			if (servers.length > 0) {
+				onServerInfoChange(servers[0]);
+			}
+		});
+	}, []);
+
   const apiClient = useMemo(
-    () => isServerInfoSet(serverInfo) ? new ShlinkApiClient(new FetchHttpClient(), serverInfo) : null,
+    () => 
+			{
+				return isServerInfoSet(serverInfo) ? new ShlinkApiClient(httpClient, serverInfo) : null
+			},
     [serverInfo],
   );
   const [settings, setSettings] = useState<Settings>({});

@@ -55,7 +55,6 @@ export const MainHeader: FC = () => {
 			<NavbarBrand tag={Link} to="/">
 				<ShlinkLogo className="main-header__brand-logo" color="white" /> Shlink
 			</NavbarBrand>
-
 			<NavbarToggler onClick={toggleCollapse}>
 				<FontAwesomeIcon icon={arrowIcon} className={toggleClass} />
 			</NavbarToggler>
@@ -71,7 +70,7 @@ export const MainHeader: FC = () => {
 							<FontAwesomeIcon icon={cogsIcon} />&nbsp; Settings
 						</NavLink>
 					</NavItem>
-					<NavItem className="me-3 d-flex align-items-center justify-content-center">
+					<NavItem className="d-flex align-items-center justify-content-center">
 						<ThemeToggle />
 					</NavItem>
 					<NavItem>

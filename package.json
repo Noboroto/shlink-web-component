@@ -4,6 +4,7 @@
   "private": false,
   "repository": "https://github.com/shlinkio/shlink-web-component",
   "license": "MIT",
+  "homepage": "",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -80,6 +81,7 @@
     "date-fns": "^4.1.0",
     "event-source-polyfill": "^1.0.31",
     "leaflet": "^1.9.4",
+    "path": "^0.12.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-external-link": "^2.3.1",
@@ -89,7 +91,8 @@
     "react-swipeable": "^7.0.1",
     "react-tag-autocomplete": "^7.3.0",
     "reactstrap": "^9.2.3",
-    "recharts": "^2.13.0"
+    "recharts": "^2.13.0",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "@shlinkio/eslint-config-js-coding-standard": "~3.2.1",

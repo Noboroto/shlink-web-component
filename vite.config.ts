@@ -1,14 +1,18 @@
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import dts from 'vite-plugin-dts';
 import { defineConfig } from 'vitest/config';
 import pack from './package.json';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 // eslint-disable-next-line no-restricted-exports
 export default defineConfig({
   plugins: [react(), dts({ rollupTypes: true })],
-
+  publicDir: 'public',
   build: {
+    outDir: 'build',
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
@@ -35,6 +39,7 @@ export default defineConfig({
   server: {
     watch: {
       ignored: [
+        '**/build/**',
         '**/home/**',
         '**/dist/**',
         '**/.idea/**',
