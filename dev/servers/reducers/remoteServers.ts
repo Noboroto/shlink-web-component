@@ -16,7 +16,6 @@ const responseToServersList = (data: any): ServerInfo[] => {
 };
 
 export const fetchServers = async (httpClient: HttpClient) => {
-  console.info('Fetching servers from', `${pack.homepage}/servers.json`);
   const resp = await httpClient.jsonRequest<any>(
     `${pack.homepage}/servers.json`
   );

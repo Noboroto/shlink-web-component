@@ -9,6 +9,7 @@ import { Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } f
 import { ShlinkLogo } from './img/ShlinkLogo';
 import './MainHeader.scss';
 import { ThemeToggle } from '../ThemeToggle';
+import { fetchEmail } from '../helper/fetchEmail';
 
 
 export type MainHeaderDeps = {
@@ -26,18 +27,7 @@ export const MainHeader: FC = () => {
 
 	// Fetch email from /oauth2/userinfo
 	useEffect(() => {
-		const fetchEmail = async () => {
-			try {
-				const response = await fetch('/oauth2/userinfo');
-				const data = await response.json() as { email: string };
-				setEmail(data.email);
-			} catch (error) {
-				setEmail("n/a");
-				console.error('Error fetching email:', error);
-			}
-		};
-
-		fetchEmail();
+		fetchEmail().then((data) => setEmail(data?.email ?? "n/a"));
 	}, []);
 
 	const settingsPath = '/settings';
