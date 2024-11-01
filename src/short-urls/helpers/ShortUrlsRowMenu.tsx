@@ -9,7 +9,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RowDropdownBtn, useToggle } from '@shlinkio/shlink-frontend-kit';
 import type { FC } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { DropdownItem } from 'reactstrap';
 import type { ShlinkShortUrl } from '../../api-contract';
 import { isErrorAction } from '../../api-contract/utils';
@@ -22,6 +22,8 @@ import type { ShortUrlIdentifier, ShortUrlModalProps } from '../data';
 import type { DeleteShortUrlModalProps } from './DeleteShortUrlModal';
 import { shortUrlToQuery } from './index';
 import { ShortUrlDetailLink } from './ShortUrlDetailLink';
+import { fetchEmail } from '../../../dev/helper/fetchEmail';
+import { isAuthorized } from '../../../dev/helper/isAuthorized';
 
 type ShortUrlsRowMenuProps = {
   shortUrl: ShlinkShortUrl;
@@ -40,6 +42,7 @@ type ShortUrlsRowMenuDeps = {
 const ShortUrlsRowMenu: FCWithDeps<ShortUrlsRowMenuConnectProps, ShortUrlsRowMenuDeps> = (
   { shortUrl, deleteShortUrl, shortUrlDeleted },
 ) => {
+	const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
   const { DeleteShortUrlModal, QrCodeModal } = useDependencies(ShortUrlsRowMenu);
   const [isQrModalOpen,, openQrCodeModal, closeQrCodeModal] = useToggle();
   const [isDeleteModalOpen,, openDeleteModal, closeDeleteModal] = useToggle();
@@ -52,6 +55,14 @@ const ShortUrlsRowMenu: FCWithDeps<ShortUrlsRowMenuConnectProps, ShortUrlsRowMen
       shortUrlDeleted(shortUrl);
     }
   }, [deleteShortUrl, shortUrl, shortUrlDeleted]);
+
+	useEffect(() => {
+		fetchEmail().then((email) => {
+			isAuthorized(email).then((isAuth) => {
+				setIsAuthorizedUser(isAuth);
+			});
+		});
+	},[]);
 
   return (
     <RowDropdownBtn minWidth={redirectRulesAreSupported ? 220 : 190}>
@@ -69,7 +80,6 @@ const ShortUrlsRowMenu: FCWithDeps<ShortUrlsRowMenuConnectProps, ShortUrlsRowMen
           >
             <FontAwesomeIcon icon={lineChartIcon} fixedWidth /> Compare visits
           </DropdownItem>
-
           <DropdownItem divider tag="hr" />
         </>
       )}
@@ -78,7 +88,7 @@ const ShortUrlsRowMenu: FCWithDeps<ShortUrlsRowMenuConnectProps, ShortUrlsRowMen
         <FontAwesomeIcon icon={editIcon} fixedWidth /> Edit short URL
       </DropdownItem>
 
-      {redirectRulesAreSupported && (
+      {redirectRulesAreSupported && isAuthorizedUser && (
         <DropdownItem tag={ShortUrlDetailLink} shortUrl={shortUrl} suffix="redirect-rules" asLink>
           <FontAwesomeIcon icon={rulesIcon} fixedWidth /> Manage redirect rules
         </DropdownItem>
@@ -88,12 +98,12 @@ const ShortUrlsRowMenu: FCWithDeps<ShortUrlsRowMenuConnectProps, ShortUrlsRowMen
         <FontAwesomeIcon icon={qrIcon} fixedWidth /> QR code
       </DropdownItem>
       <QrCodeModal shortUrl={shortUrl} isOpen={isQrModalOpen} toggle={closeQrCodeModal} />
-
-      <DropdownItem divider tag="hr" />
-
-      <DropdownItem className="dropdown-item--danger" onClick={confirmDeletions ? openDeleteModal : doDeleteShortUrl}>
-        <FontAwesomeIcon icon={deleteIcon} fixedWidth /> Delete short URL
-      </DropdownItem>
+			{isAuthorizedUser && <DropdownItem divider tag="hr" />}
+			{isAuthorizedUser && (
+				<DropdownItem className="dropdown-item--danger" onClick={confirmDeletions ? openDeleteModal : doDeleteShortUrl}>
+					<FontAwesomeIcon icon={deleteIcon} fixedWidth /> Delete short URL
+				</DropdownItem>
+			)}
       <DeleteShortUrlModal
         shortUrl={shortUrl}
         deleteShortUrl={deleteShortUrl}

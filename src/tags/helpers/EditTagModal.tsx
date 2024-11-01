@@ -1,5 +1,5 @@
 import { Result } from '@shlinkio/shlink-frontend-kit';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, Input, InputGroup, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { ShlinkApiError } from '../../common/ShlinkApiError';
 import type { FCWithDeps } from '../../container/utils';
@@ -9,6 +9,8 @@ import { handleEventPreventingDefault } from '../../utils/helpers';
 import type { ColorGenerator } from '../../utils/services/ColorGenerator';
 import type { TagModalProps } from '../data';
 import type { EditTag, TagEdition } from '../reducers/tagEdit';
+import { fetchEmail } from '../../../dev/helper/fetchEmail';
+import { isAuthorized } from '../../../dev/helper/isAuthorized';
 
 interface EditTagModalProps extends TagModalProps {
   tagEdit: TagEdition;
@@ -23,6 +25,7 @@ type EditTagModalDeps = {
 const EditTagModal: FCWithDeps<EditTagModalProps, EditTagModalDeps> = (
   { tag, editTag, toggle, tagEdited, isOpen, tagEdit },
 ) => {
+	const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
   const { ColorGenerator: colorGenerator } = useDependencies(EditTagModal);
   const [newTagName, setNewTagName] = useState(tag);
   const [color, setColor] = useState(colorGenerator.getColorForKey(tag));
@@ -38,6 +41,10 @@ const EditTagModal: FCWithDeps<EditTagModalProps, EditTagModalDeps> = (
     [color, edited, newTagName, tag, tagEdited],
   );
 
+	useEffect(() => {
+		fetchEmail().then((email) => isAuthorized(email)).then((isAuthorized) => setIsAuthorizedUser(isAuthorized));
+	}, []);
+
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered onClosed={onClosed}>
       <form name="editTag" onSubmit={saveTag}>
@@ -46,6 +53,7 @@ const EditTagModal: FCWithDeps<EditTagModalProps, EditTagModalDeps> = (
           <InputGroup>
             <ColorPicker color={color} onChange={setColor} className="input-group-text" name="tag-color" />
             <Input
+							disabled={!isAuthorizedUser}
               value={newTagName}
               placeholder="Tag"
               required

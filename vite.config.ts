@@ -7,22 +7,23 @@ import { defineConfig } from 'vitest/config';
 import pack from './package.json';
 import { manifest } from './manifest';
 
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // eslint-disable-next-line no-restricted-exports
 export default defineConfig({
-  plugins: [react(), dts({ rollupTypes: true }),
-		VitePWA({
-			mode:
-				process.env.NODE_ENV === 'development' ? 'development' : 'production',
-			strategies: 'injectManifest',
-			srcDir: './src',
-			injectRegister: false,
-			manifestFilename: 'manifest.json',
-			manifest,
-		}),
-	],
+  plugins: [
+    react(),
+    dts({ rollupTypes: true }),
+    VitePWA({
+      mode:
+        process.env.NODE_ENV === 'development' ? 'development' : 'production',
+      strategies: 'injectManifest',
+      srcDir: './src',
+      injectRegister: false,
+      manifestFilename: 'manifest.json',
+      manifest,
+    }),
+  ],
   publicDir: 'public',
   build: {
     outDir: 'build',

@@ -73,6 +73,8 @@ const TagsSelector: FCWithDeps<TagsSelectorProps, TagsSelectorDeps> = (
   const searchMode = shortUrlCreation?.tagFilteringMode ?? 'startsWith';
   const apiRef = useElementRef<ReactTagsAPI>();
 	fetchEmail().then((email) => {
+		if (immutable) 
+			return
 		const prefix = email.split('@')[0];
 		if (!selectedTags.includes(prefix)) {
 			onChange([...selectedTags, prefix]);

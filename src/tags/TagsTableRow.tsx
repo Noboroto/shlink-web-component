@@ -5,7 +5,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { RowDropdownBtn, useToggle } from '@shlinkio/shlink-frontend-kit';
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import { Link } from 'react-router-dom';
 import { DropdownItem } from 'reactstrap';
 import type { FCWithDeps } from '../container/utils';
@@ -16,6 +16,8 @@ import type { ColorGenerator } from '../utils/services/ColorGenerator';
 import { useVisitsComparisonContext } from '../visits/visits-comparison/VisitsComparisonContext';
 import type { SimplifiedTag, TagModalProps } from './data';
 import { TagBullet } from './helpers/TagBullet';
+import { isAuthorized } from '../../dev/helper/isAuthorized';
+import { fetchEmail } from '../../dev/helper/fetchEmail';
 
 export type TagsTableRowProps = {
   tag: SimplifiedTag;
@@ -29,10 +31,15 @@ type TagsTableRowDeps = {
 
 const TagsTableRow: FCWithDeps<TagsTableRowProps, TagsTableRowDeps> = ({ tag }) => {
   const { DeleteTagConfirmModal, EditTagModal, ColorGenerator: colorGenerator } = useDependencies(TagsTableRow);
+	const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
   const [isDeleteModalOpen, toggleDelete] = useToggle();
   const [isEditModalOpen, toggleEdit] = useToggle();
   const routesPrefix = useRoutesPrefix();
   const visitsComparison = useVisitsComparisonContext();
+
+	useEffect(() => {
+		fetchEmail().then((email) => isAuthorized(email)).then((isAuthorized) => setIsAuthorizedUser(isAuthorized));
+	}, []);
 
   return (
     <tr className="responsive-table__row">
@@ -64,12 +71,12 @@ const TagsTableRow: FCWithDeps<TagsTableRowProps, TagsTableRowDeps> = ({ tag }) 
           >
             <FontAwesomeIcon icon={lineChartIcon} fixedWidth /> Compare visits
           </DropdownItem>
-
-          <DropdownItem divider tag="hr" />
-
-          <DropdownItem className="dropdown-item--danger" onClick={toggleDelete}>
-            <FontAwesomeIcon icon={deleteIcon} fixedWidth className="me-1" /> Delete tag
-          </DropdownItem>
+					{isAuthorizedUser && <DropdownItem divider tag="hr" />}
+					{isAuthorizedUser && (
+						<DropdownItem className="dropdown-item--danger" onClick={toggleDelete}>
+							<FontAwesomeIcon icon={deleteIcon} fixedWidth className="me-1" /> Delete tag
+						</DropdownItem>
+					)}
         </RowDropdownBtn>
       </td>
 
