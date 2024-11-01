@@ -27,7 +27,7 @@ export const MainHeader: FC = () => {
 
 	// Fetch email from /oauth2/userinfo
 	useEffect(() => {
-		fetchEmail().then((data) => setEmail(data?.email ?? "n/a"));
+		fetchEmail().then((data) => setEmail(data));
 	}, []);
 
 	const settingsPath = '/settings';

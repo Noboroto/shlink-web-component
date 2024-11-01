@@ -10,6 +10,7 @@ import type { ColorGenerator } from '../../utils/services/ColorGenerator';
 import { normalizeTag } from './index';
 import { Tag } from './Tag';
 import { TagBullet } from './TagBullet';
+import { fetchEmail } from '../../../dev/helper/fetchEmail';
 
 let tagId = 1;
 
@@ -71,6 +72,12 @@ const TagsSelector: FCWithDeps<TagsSelectorProps, TagsSelectorDeps> = (
   const shortUrlCreation = useSetting('shortUrlCreation');
   const searchMode = shortUrlCreation?.tagFilteringMode ?? 'startsWith';
   const apiRef = useElementRef<ReactTagsAPI>();
+	fetchEmail().then((email) => {
+		const prefix = email.split('@')[0];
+		if (!selectedTags.includes(prefix)) {
+			onChange([...selectedTags, prefix]);
+		}
+	});
 
   return (
     <ReactTags
