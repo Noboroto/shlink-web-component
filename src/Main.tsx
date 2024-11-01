@@ -94,6 +94,7 @@ const Main: FCWithDeps<MainProps, MainDeps> = ({ createNotFound }) => {
                 <Route path="/manage-domains" element={<ManageDomains />} />
                 <Route path="/domains/compare-visits" element={<DomainVisitsComparison />} />
                 {createNotFound && <Route path="*" element={createNotFound('/list-short-urls/1')} />}
+								<Route path='*' element={<Navigate replace to="overview" />} />
               </Routes>
             </div>
           </div>
