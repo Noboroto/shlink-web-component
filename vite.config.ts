@@ -19,7 +19,7 @@ export default defineConfig({
         process.env.NODE_ENV === 'development' ? 'development' : 'production',
       strategies: 'injectManifest',
       srcDir: './src',
-			filename: 'service-worker.ts',
+      filename: 'service-worker.ts',
       injectRegister: false,
       manifestFilename: 'manifest.json',
       manifest,
