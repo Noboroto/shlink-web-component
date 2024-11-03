@@ -7,10 +7,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { clsx } from 'clsx';
-import type { FC } from 'react';
+import { useEffect, useState, type FC } from 'react';
 import type { NavLinkProps } from 'react-router-dom';
 import { NavLink, useLocation } from 'react-router-dom';
 import './AsideMenu.scss';
+import { fetchEmail } from '../../dev/helper/fetchEmail';
+import { isAuthorized } from '../../dev/helper/isAuthorized';
 
 export interface AsideMenuProps {
   routePrefix: string;
@@ -37,6 +39,16 @@ export const AsideMenu: FC<AsideMenuProps> = ({ routePrefix, showOnMobile = fals
   const asideClass = clsx('aside-menu', {
     'aside-menu--hidden': !showOnMobile,
   });
+
+	const [isAuthorizedUser, setIsAuthorizedUser] = useState(false);
+	useEffect(() => {
+		fetchEmail().then((email) => {
+			isAuthorized(email).then((isAuthorized) => {
+				setIsAuthorizedUser(isAuthorized);
+			});
+		});
+	}, []);
+
   const buildPath = (suffix: string) => `${routePrefix}${suffix}`;
 
   return (
@@ -61,10 +73,11 @@ export const AsideMenu: FC<AsideMenuProps> = ({ routePrefix, showOnMobile = fals
           <FontAwesomeIcon fixedWidth icon={tagsIcon} />
           <span className="aside-menu__item-text">Manage tags</span>
         </AsideMenuItem>
-        <AsideMenuItem to={buildPath('/manage-domains')}>
-          <FontAwesomeIcon fixedWidth icon={domainsIcon} />
-          <span className="aside-menu__item-text">Manage domains</span>
-        </AsideMenuItem>
+				{isAuthorizedUser && (
+					<AsideMenuItem to={buildPath('/manage-domains')}>
+						<FontAwesomeIcon fixedWidth icon={domainsIcon} />
+						<span className="aside-menu__item-text">Manage domains</span>
+					</AsideMenuItem>)}
       </nav>
     </aside>
   );
